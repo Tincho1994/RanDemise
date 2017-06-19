@@ -82,6 +82,17 @@ class eventTable{
 	addEvent(ev){
 		this.events.push(ev);
 	}
+
+	getProbs(probInd){
+		var eventsList = this.events;
+		var probArr = [];
+
+		eventsList.forEach(function(d){
+			probArr.push(d.probs[probInd]);
+		});
+
+		return probArr;
+	}
 }
 class event{
 	constructor(name, state,table){
@@ -91,8 +102,22 @@ class event{
 		this.name = name;
 		this.id = state.getEventID();
 
+		this.probs = [];
+
+		this.nextTable = null;
+
 		state.addEvent();
 		table.addEvent(this);
+	}
+
+	addProb(probVal){
+		this.probs.push(probVal);
+	}
+	editProb(probVal,probInd){
+		this.probs[probInd] = probVal;
+	}
+	editNextTable(tb){
+		this.nextTable = tb;
 	}
 }
 
@@ -109,10 +134,11 @@ class rollInstance{
 		this.eventsRolled = [];
 	}
 
-	rollEvent(probs){
+	rollEvent(probInd){
 		var elID = 0;
 		var randArr =[];
-
+		var probs = this.curTable.getProbs(probInd);
+		
 		probs.forEach(function(d){
 			var numEl = Math.round(d*100);
 			for (var i = 0; i <= numEl; i++) {
@@ -121,14 +147,25 @@ class rollInstance{
 			elID++;
 		});
 
-		var randomInd = Math.round(Math.Random()*randArr.length);
-		return this.curTable.events[randomInd];
+		var randomInd = Math.round(Math.random()*randArr.length);
+		var eventInd = randArr[randomInd];
+		return this.curTable.events[eventInd];
 	}
 }
 
 var ts = new treeState();
 var tabTr = new tableTree("test",ts);
 var tab = new eventTable("test",ts,tabTr);
+var ev = new event("testEvent",ts,tab);
+var ev2 = new event("testEvent 2",ts,tab);
+
+ev.addProb(0.4);
+ev2.addProb(0.5);
+ev2.editProb(0.6,0);
+
+var rollSt = new rollState(tabTr);
+var roller = new rollInstance(rollSt,rollSt.tree.headTable)
+
 </script>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
