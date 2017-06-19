@@ -109,8 +109,9 @@ class event{
 		state.addEvent();
 		table.addEvent(this);
 	}
-
+	// TODO: When a probability is changed update all other probabilities in the table such that they add up to 1 or prompt the user to change them themselves.
 	addProb(probVal){
+		// TODO: if a new conditional probability is added to the probability array, update all other events in the table such that their probability arrays are of the same length.
 		this.probs.push(probVal);
 	}
 	editProb(probVal,probInd){
@@ -121,10 +122,13 @@ class event{
 	}
 }
 
+
 class rollState{
 	constructor(tr){
 		this.tree = tr;
 	}
+
+	//ToDo: method RollTree to roll through a tree and call a rollinstacne object for each table and then progress to next table
 	
 }
 class rollInstance{
@@ -153,6 +157,8 @@ class rollInstance{
 	}
 }
 
+
+// Testing Objects
 var ts = new treeState();
 var tabTr = new tableTree("test",ts);
 var tab = new eventTable("test",ts,tabTr);
