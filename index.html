@@ -100,10 +100,29 @@ class rollState{
 	constructor(tr){
 		this.tree = tr;
 	}
+	
 }
 class rollInstance{
-	constructor(rs){
-		this.curTable = rs.tree.headTable;
+	constructor(rs,tb){
+		this.curTable = tb;
+		this.conditions = [];
+		this.eventsRolled = [];
+	}
+
+	rollEvent(probs){
+		var elID = 0;
+		var randArr =[];
+
+		probs.forEach(function(d){
+			var numEl = Math.round(d*100);
+			for (var i = 0; i <= numEl; i++) {
+				randArr.push(elID);
+			}
+			elID++;
+		});
+
+		var randomInd = Math.round(Math.Random()*randArr.length);
+		return this.curTable.events[randomInd];
 	}
 }
 
