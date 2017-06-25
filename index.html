@@ -58,157 +58,159 @@
 <body>
 
 <div class="container" id = "cont">
-<div class="page-header">
-	<h1>RanDemise - Random Table Toolbox</h1>
-</div>
-
-<div class="row">
-  
-  <!-- Rollable D6 --> 
-  <div class="col-sm-6" id="container" onclick="rando()">
-    <div id="cube" class="show1">
-      <div class="top"></div>
-      <div class="front"></div>
-      <div class="left"></div>
-      <div class="back"></div>
-      <div class="right"></div>
-      <div class="bottom"></div>
-    </div>
+  <div class="page-header">
+  	<h1>RanDemise - Random Table Toolbox</h1>
   </div>
 
-  <!-- Rollable D20 --> 
-  <div class="content col-sm-6">
-    <div class="die">
-      <figure class="face face-1"></figure>
-      <figure class="face face-2"></figure>
-      <figure class="face face-3"></figure>
-      <figure class="face face-4"></figure>
-      <figure class="face face-5"></figure>
-      <figure class="face face-6"></figure>
-      <figure class="face face-7"></figure>
-      <figure class="face face-8"></figure>
-      <figure class="face face-9"></figure>
-      <figure class="face face-10"></figure>
-      <figure class="face face-11"></figure>
-      <figure class="face face-12"></figure>
-      <figure class="face face-13"></figure>
-      <figure class="face face-14"></figure>
-      <figure class="face face-15"></figure>
-      <figure class="face face-16"></figure>
-      <figure class="face face-17"></figure>
-      <figure class="face face-18"></figure>
-      <figure class="face face-19"></figure>
-      <figure class="face face-20"></figure>
+  <div class="row bannered">
+    
+    <!-- Rollable D6 --> 
+    <div class="col-sm-6">
+      <div class="img-responsive" id="dicecontainer" onclick="rando()">
+        <div id="cube" class="show1">
+          <div class="top"></div>
+          <div class="front"></div>
+          <div class="left"></div>
+          <div class="back"></div>
+          <div class="right"></div>
+          <div class="bottom"></div>
+        </div>
+      </div>
     </div>
+    <!-- Rollable D20 -->
+    <div class="col-sm-6 img-responsive content unselectable">
+      <div class="die">
+        <figure class="face face-1"></figure>
+        <figure class="face face-2"></figure>
+        <figure class="face face-3"></figure>
+        <figure class="face face-4"></figure>
+        <figure class="face face-5"></figure>
+        <figure class="face face-6"></figure>
+        <figure class="face face-7"></figure>
+        <figure class="face face-8"></figure>
+        <figure class="face face-9"></figure>
+        <figure class="face face-10"></figure>
+        <figure class="face face-11"></figure>
+        <figure class="face face-12"></figure>
+        <figure class="face face-13"></figure>
+        <figure class="face face-14"></figure>
+        <figure class="face face-15"></figure>
+        <figure class="face face-16"></figure>
+        <figure class="face face-17"></figure>
+        <figure class="face face-18"></figure>
+        <figure class="face face-19"></figure>
+        <figure class="face face-20"></figure>
+      </div>
+    </div>
+    
+    <script src="js/dice.js" type="text/javascript"></script>
   </div>
-  <script src="js/dice.js" type="text/javascript"></script>
 
+
+
+
+
+  <div id="viewport" class = "scrollable">
+  </div>
+
+  <script type="text/javascript">
+  /* Writing treegraph code in here for right now bc i was having some wierd issues with old versions of the .js file being used instead of the current saved one - spooky*/
+  	var margin = {top: 20, right: 120, bottom: 20, left: 120},
+      width = 960 - margin.right - margin.left,
+      height = 800 - margin.top - margin.bottom;
+
+      width = 2000;
+      height =500;
+
+      var svg = d3.select("#viewport").append("svg")
+      .attr("width", width)
+      .attr("height",height);
+
+      svg.append("rect")
+      .attr("height",height)
+      .attr("width",width)
+      .attr("fill","#1d384c");
+
+      var g = svg.append("g")
+      .attr("transform","translate(40,0)");
+
+
+      var table = [
+    {"name": "Eve",   "parent": ""},
+    {"name": "Cain",  "parent": "Eve"},
+    {"name": "Seth",  "parent": "Eve"},
+    {"name": "Enos",  "parent": "Seth"},
+    {"name": "Noam",  "parent": "Seth"},
+    {"name": "Abel",  "parent": "Eve"},
+    {"name": "Awan",  "parent": "Eve"},
+    {"name": "Enoch", "parent": "Awan"},
+    {"name": "Azura", "parent": "Eve"}
+  ];
+
+  	var root = d3.stratify()
+  	.id(function(d) { return d.name; })
+  	.parentId(function(d) { return d.parent; })
+  	(table);
+
+  	var tree = d3.tree()
+  	.size([height, width-margin.right]);
+
+  	var link = g.selectAll(".link")
+  	.data(tree(root).links())
+  	.enter().append("path")
+      	.attr("class", "link")
+      	.attr("d", d3.linkHorizontal()
+  			.x(function(d) { return d.y/2; })
+          	.y(function(d) { return d.x; }));
+
+  	var nodes = g.selectAll(".node")
+      .data(root.descendants())
+      .enter().append("g")
+      	.attr("class", function(d) { return "node" + (d.children ? " node--internal" : " node--leaf"); })
+      	.attr("transform", function(d) { return "translate(" + d.y/2 + "," + d.x + ")"; })
+
+      var drag = d3.drag();
+    	nodes.append("circle")
+      .attr("r", 2.5)
+      .call(d3.drag()
+      	.on("start",function(d){ d3.select(this).raise().classed("active", true);})
+      	.on("drag",function(d){ d3.select(this).raise().classed("active", true);})
+  		.on("end",function(d){d3.select(this).classed("active", false);}));
+
+    	nodes.append("text")
+      .attr("dy", 3)
+      .attr("x", function(d) { return d.children ? -8 : 8; })
+      .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
+      .text(function(d) { return d.id.substring(d.id.lastIndexOf(".") + 1); });
+
+      var circ =svg.append("circle")
+      .attr("r",5)
+      .attr("cx",50)
+      .attr("cy",100)
+      .attr("fill","white")
+      .call(d3.drag()
+      	.on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended));
+
+      var test = svg.append("path")
+      	.attr("class", "link")
+      	.attr("d", cardinal([0,0],[50,100]))
+      	.attr("strok","red")
+      	.attr("stroke-width",2);
+
+  function dragstarted(d) {
+    d3.select(this).raise().classed("active", true);
+  }
+
+  function dragged(d) {
+    d3.select(this).attr("cx", d3.event.x).attr("cy", d3.event.y);
+  }
+
+  function dragended(d) {
+    d3.select(this).classed("active", false);
+  }
+
+  </script>
 </div>
-
-
-
-
-
-<div id="viewport" class = "scrollable">
-</div>
-
-<script type="text/javascript">
-/* Writing treegraph code in here for right now bc i was having some wierd issues with old versions of the .js file being used instead of the current saved one - spooky*/
-	var margin = {top: 20, right: 120, bottom: 20, left: 120},
-    width = 960 - margin.right - margin.left,
-    height = 800 - margin.top - margin.bottom;
-
-    width = 2000;
-    height =500;
-
-    var svg = d3.select("#viewport").append("svg")
-    .attr("width", width)
-    .attr("height",height);
-
-    svg.append("rect")
-    .attr("height",height)
-    .attr("width",width)
-    .attr("fill","#1d384c");
-
-    var g = svg.append("g")
-    .attr("transform","translate(40,0)");
-
-
-    var table = [
-  {"name": "Eve",   "parent": ""},
-  {"name": "Cain",  "parent": "Eve"},
-  {"name": "Seth",  "parent": "Eve"},
-  {"name": "Enos",  "parent": "Seth"},
-  {"name": "Noam",  "parent": "Seth"},
-  {"name": "Abel",  "parent": "Eve"},
-  {"name": "Awan",  "parent": "Eve"},
-  {"name": "Enoch", "parent": "Awan"},
-  {"name": "Azura", "parent": "Eve"}
-];
-
-	var root = d3.stratify()
-	.id(function(d) { return d.name; })
-	.parentId(function(d) { return d.parent; })
-	(table);
-
-	var tree = d3.tree()
-	.size([height, width-margin.right]);
-
-	var link = g.selectAll(".link")
-	.data(tree(root).links())
-	.enter().append("path")
-    	.attr("class", "link")
-    	.attr("d", d3.linkHorizontal()
-			.x(function(d) { return d.y/2; })
-        	.y(function(d) { return d.x; }));
-
-	var nodes = g.selectAll(".node")
-    .data(root.descendants())
-    .enter().append("g")
-    	.attr("class", function(d) { return "node" + (d.children ? " node--internal" : " node--leaf"); })
-    	.attr("transform", function(d) { return "translate(" + d.y/2 + "," + d.x + ")"; })
-
-    var drag = d3.drag();
-  	nodes.append("circle")
-    .attr("r", 2.5)
-    .call(d3.drag()
-    	.on("start",function(d){ d3.select(this).raise().classed("active", true);})
-    	.on("drag",function(d){ d3.select(this).raise().classed("active", true);})
-		.on("end",function(d){d3.select(this).classed("active", false);}));
-
-  	nodes.append("text")
-    .attr("dy", 3)
-    .attr("x", function(d) { return d.children ? -8 : 8; })
-    .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
-    .text(function(d) { return d.id.substring(d.id.lastIndexOf(".") + 1); });
-
-    var circ =svg.append("circle")
-    .attr("r",5)
-    .attr("cx",50)
-    .attr("cy",100)
-    .attr("fill","white")
-    .call(d3.drag()
-    	.on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended));
-
-    var test = svg.append("path")
-    	.attr("class", "link")
-    	.attr("d", cardinal([0,0],[50,100]))
-    	.attr("strok","red")
-    	.attr("stroke-width",2);
-
-function dragstarted(d) {
-  d3.select(this).raise().classed("active", true);
-}
-
-function dragged(d) {
-  d3.select(this).attr("cx", d3.event.x).attr("cy", d3.event.y);
-}
-
-function dragended(d) {
-  d3.select(this).classed("active", false);
-}
-
-</script>
 </body>
