@@ -67,58 +67,71 @@
 
   <stat-block data-two-column data-content-height="672">
     <creature-heading>
-      <h1 id="mName">Werewolf Alpha</h1> 
-      <h2 id="mDescription">Medium humanoid (human, shapechanger), chaotic evil</h2>
+      <h1 id="mName"></h1> 
+      <h2 id="mDescription"></h2>
     </creature-heading>
 
     <top-stats>
       <property-line>
         <h4>Armor Class</h4>
-        <p id="mAC">14 (armor scraps) in humanoid form, 16 (natural armor) in wolf
-          or hybrid form</p>
+        <p id="mAC"></p>
       </property-line>
       <property-line>
         <h4>Hit Points</h4>
-        <p id=mHP>119 (14d8 + 56)</p>
+        <p id=mHP></p>
       </property-line>
       <property-line>
         <h4>Speed</h4>
-        <p id="mSpeed">30 ft. (40 ft. in wolf form)</p>
+        <p id="mSpeed"></p>
       </property-line>
 
-      <abilities-block data-str="20"
-                       data-dex="15"
-                       data-con="18"
-                       data-int="11"
-                       data-wis="14"
-                       data-cha="15"></abilities-block>
+      <tapered-rule id="abilitiesTopLine"></tapered-rule>
+
+      <abilities-block data-str=""
+                       data-dex=""
+                       data-con=""
+                       data-int=""
+                       data-wis=""
+                       data-cha=""></abilities-block>
       <property-line>
-        <h4>Saving Throws</h4>
-        <p>Str +9, Con +8, Wis +6</p>
+        <h4 id="mThrowsTitle">Saving Throws</h4>
+        <p id="mThrows"></p>
       </property-line>
       <property-line>
-        <h4>Skills</h4>
-        <p>Athletics +9, Perception +6</p>
+        <h4 id="mSkillsTitle">Skills</h4>
+        <p id="mSkills"></p>
       </property-line>
       <property-line>
-        <h4>Damage Immunities</h4>
-        <p>bludgeoning, piercing, and slashing damage from nonmagical weapons
-          that aren't silvered</p>
+        <h4 id="mVulnerabiltiesTitle">Damage Vulnerabilities</h4>
+        <p id="mVulnerabilties"></p>
       </property-line>
       <property-line>
-        <h4>Senses</h4>
-        <p>passive Perception 16</p>
+        <h4 id="mResistancesTitle">Damage Resistances</h4>
+        <p id="mResistances"></p>
       </property-line>
       <property-line>
-        <h4>Languages</h4>
-        <p>Common (can't speak in wolf form)</p>
+        <h4 id="mImmunitiesTitle">Damage Immunities</h4>
+        <p id="mImmunities"></p>
       </property-line>
       <property-line>
-        <h4>Challenge</h4>
-        <p>9 (5,000 XP)</p>
+        <h4 id="mConditionImmunitiesTitle">Condition Immunities</h4>
+        <p id="mConditionImmunities"></p>
+      </property-line>
+      <property-line>
+        <h4 id="mSensesTitle">Senses</h4>
+        <p id="mSenses"></p>
+      </property-line>
+      <property-line>
+        <h4 id="mLanguagesTitle">Languages</h4>
+        <p id="mLanguages"></p>
+      </property-line>
+      <property-line>
+        <h4 id="mChallengeTitle">Challenge</h4>
+        <p id="mChallenge"></p>
       </property-line>
     </top-stats>
 
+    <h3>Special Abilities</h3>
 
     <property-block>
       <h4>Legendary Resistance (3/Day).</h4>
@@ -227,6 +240,11 @@
 
     var monsterNames = monsters.map(function(d) { return d.name; });
 
+    var characteristics = ["Str", "Dex", "Con", "Int", "Wis", "Cha"]
+    var possibleSave = ["strength_save", "dexterity_save", "constitution_save", "intelligence_save", "wisdom_save", "charisma_save"];
+    var skills = ["acrobatics", "arcana", "athletics", "deception", "history", "insight", "intimidation", "investigation", "nature", "perception", "performance", "persuasion", "religion", "stealth", "survival"]
+    var skillsPrint = ["Acrobatics", "Arcana", "Athletics", "Deception", "History", "Insight", "Intimidation", "Investigation", "Nature", "Perception", "Performance", "Persuasion", "Religion", "Stealth", "Survival"]
+
     $( function() {
       var availableTags = monsterNames;
       $( "#tags" ).autocomplete({
@@ -236,12 +254,93 @@
           var monsterName = ui.item.label;
           var mon = get(monsterName);
 
+          // ---------- Title ----------
           document.getElementById("mName").innerHTML = mon.name;
           document.getElementById("mDescription").innerHTML = mon.size + " " + mon.type + " "  + mon.subtype + ", "  + mon.alignment;
 
           document.getElementById("mAC").innerHTML = mon.armor_class;
           document.getElementById("mHP").innerHTML = mon.hit_points + " (" + mon.hit_dice + ")";
           document.getElementById("mSpeed").innerHTML = mon.speed;
+
+          // ---------- Skills ----------
+
+          // ---------- Properties ----------
+          var savingThrows = "";
+          for (var i = 0; i < possibleSave.length; i++) {
+            if (mon.hasOwnProperty(possibleSave[i])){
+              var prop = possibleSave[i];
+              savingThrows = savingThrows.concat(characteristics[i])
+              savingThrows = savingThrows.concat(" +")
+              savingThrows = savingThrows.concat(mon[prop]);
+              savingThrows = savingThrows.concat(" ")
+            }
+          }
+          if ( savingThrows == "" ) {
+            document.getElementById("mThrowsTitle").innerHTML = "";
+            document.getElementById("mThrows").innerHTML = ""; 
+
+          } else {
+            document.getElementById("mThrowsTitle").innerHTML = "Saving Throws";
+            document.getElementById("mThrows").innerHTML = savingThrows;
+          }
+
+          var skill = "";
+          for (var i = 0; i < skills.length; i++) {
+            if (mon.hasOwnProperty(skill[i])){
+              var thisSkill = skills[i];
+              skill = skill.concat(skillsPrint[i])
+              skill = skill.concat(" +")
+              skill = skill.concat(mon[thisSkill]);
+              skill = skill.concat(" ")
+            }
+          }
+          if ( skill == "" ) {
+            document.getElementById("mSkillsTitle").innerHTML = "";
+            document.getElementById("mSkills").innerHTML = "";
+          } else {
+            document.getElementById("mSkillsTitle").innerHTML = "Skills";
+            document.getElementById("mSkills").innerHTML = skill;
+          }
+
+          if ( mon.damage_vulnerabilities == "" ) {
+            document.getElementById("mVulnerabiltiesTitle").innerHTML = "";
+            document.getElementById("mVulnerabilties").innerHTML = "";
+
+          } else {
+            document.getElementById("mVulnerabiltiesTitle").innerHTML = "Damage Vulnerabilities";
+            document.getElementById("mVulnerabilties").innerHTML = mon.damage_vulnerabilities;
+          }
+
+          if ( mon.damage_resistances == "" ) {
+            document.getElementById("mResistancesTitle").innerHTML = "";
+            document.getElementById("mResistances").innerHTML = "";
+
+          } else {
+            document.getElementById("mResistancesTitle").innerHTML = "Damage Resistances";
+            document.getElementById("mResistances").innerHTML = mon.damage_resistances;
+          }
+
+          if ( mon.damage_immunities == "" ) {
+            document.getElementById("mImmunitiesTitle").innerHTML = "";
+            document.getElementById("mImmunities").innerHTML = "";
+          } else {
+            document.getElementById("mImmunitiesTitle").innerHTML = "Damage Immunities";
+            document.getElementById("mImmunities").innerHTML = mon.damage_immunities;
+          }
+
+          if ( mon.condition_immunities == "" ) {
+            document.getElementById("mConditionImmunitiesTitle").innerHTML = "";
+            document.getElementById("mConditionImmunities").innerHTML = "";
+          } else {
+            document.getElementById("mConditionImmunitiesTitle").innerHTML = "Condition Immunities";
+            document.getElementById("mConditionImmunities").innerHTML = mon.condition_immunities;
+          }
+
+          document.getElementById("mSenses").innerHTML = mon.senses;
+          document.getElementById("mLanguages").innerHTML = mon.languages;
+          document.getElementById("mChallenge").innerHTML = mon.challenge_rating;
+
+          // ---------- Actions ----------
 
           return true;
         }
