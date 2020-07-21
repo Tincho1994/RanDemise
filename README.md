@@ -6,7 +6,7 @@ Functionality:
 MVP: Improved intiative but with a map, token control, custom map upload and grid creation
 
 TODO
-[ ] SVG uploader w grid generation - Martin
+- [ ] SVG uploader w grid generation - Martin
 
 Encounter Map Overlay
 - Upload of SVG files for custom maps and grid creation
