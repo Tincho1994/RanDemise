@@ -13,6 +13,9 @@
   <!-- Bootstrap core CSS -->
   <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
+  <!-- Page CSS -->
+  <link rel="stylesheet" href="/stye.css" />
+
 </head>
 
 <body>
@@ -55,8 +58,33 @@
           <li>Bootstrap 4.5.0</li>
           <li>jQuery 3.5.1</li>
         </ul>
-        <label for="inputId">file dialog</label>
-        <input id="inputId" type="file" style="position: fixed; top: -100em">
+    </div>
+
+
+    <div class="custom-file">
+        <input type="file" class="custom-file-input" id="inputGroupFile01"
+        aria-describedby="inputGroupFileAddon01">
+      <label class="custom-file-label" for="inputGroupFile01">Choose file for map</label>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade hide" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Map Uploader</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <img id='myImg' src="#" alt="your image" style="width:100%">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -64,7 +92,25 @@
   <!-- Bootstrap core JavaScript -->
   <script src="vendor/jquery/jquery.slim.min.js"></script>
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
+  
 </body>
 
 </html>
+
+<script type="text/javascript">
+  window.addEventListener('load', function() {
+    document.getElementById('inputGroupFile01').addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+          var img = document.getElementById('myImg');  // $('img')[0]
+          img.src = URL.createObjectURL(this.files[0]); // set src to blob url
+          img.onload = imageIsLoaded;
+      }
+    });
+  });
+
+  function imageIsLoaded() { 
+    // alert("Image successfully uploaded");
+    $("#exampleModalCenter").modal('show');  // blob url
+  }
+
+</script>
