@@ -58,32 +58,42 @@
           <li>Bootstrap 4.5.0</li>
           <li>jQuery 3.5.1</li>
         </ul>
+      </div>
+    </div>  
+    <div class="row">
+      <div class="custom-file">
+          <input type="file" class="custom-file-input" id="inputGroupFile01"
+          aria-describedby="inputGroupFileAddon01">
+        <label class="custom-file-label" for="inputGroupFile01">Choose file for map</label>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal fade hide" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">Map Uploader</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <img id='imgPreview' src="#" alt="your image" class="border rounded" style="width:100%; cursor:crosshair">
+              <p id = "test"></p>
+              <p id = "test2"></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-
-
-    <div class="custom-file">
-        <input type="file" class="custom-file-input" id="inputGroupFile01"
-        aria-describedby="inputGroupFileAddon01">
-      <label class="custom-file-label" for="inputGroupFile01">Choose file for map</label>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade hide" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLongTitle">Map Uploader</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <img id='myImg' src="#" alt="your image" style="width:100%">
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-          </div>
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <div class="container border rounded" style="height: 500px; margin-top: 25px">
+        <img src="#" id='myImg' class="img-fluid" alt="Responsive image">
         </div>
       </div>
     </div>
@@ -101,7 +111,7 @@
   window.addEventListener('load', function() {
     document.getElementById('inputGroupFile01').addEventListener('change', function() {
       if (this.files && this.files[0]) {
-          var img = document.getElementById('myImg');  // $('img')[0]
+          var img = document.getElementById('imgPreview');  // $('img')[0]
           img.src = URL.createObjectURL(this.files[0]); // set src to blob url
           img.onload = imageIsLoaded;
       }
@@ -110,7 +120,24 @@
 
   function imageIsLoaded() { 
     // alert("Image successfully uploaded");
-    $("#exampleModalCenter").modal('show');  // blob url
-  }
+    $("#exampleModalCenter").modal('show'); // blob url
+    point1 = [,];
+    point2 = [,];
+    clickToggle = 0;
+    document.getElementById('imgPreview').addEventListener('click', function(e) {
+      cursorX = e.pageX;
+      cursorY= e.pageY;
+      $( "#test" ).text( "pageX: " + cursorX +",pageY: " + cursorY );
+      if (clickToggle) {
+        point2 = [cursorX, cursorY];
+        clickToggle = 0;
+      }
+      else{
+        point1 = [cursorX, cursorY];
+        clickToggle = 1;
+      };
+      $( "#test2" ).text( "pageX: " + point1[0] +",pageY: " + point1[1] );
+    });
+  };
 
 </script>
