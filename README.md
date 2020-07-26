@@ -7,6 +7,10 @@ MVP: Improved intiative but with a map, token control, custom map upload and gri
 
 TODO
 - [ ] SVG uploader w grid generation - Martin
+- [ ] Token uploader and removal tool - Martin
+- [ ] Unique instance on each load to allow for link sharing of sessions, like in improved intiative - Brendan
+- [ ] D3 integration to image frame to allow for interactable objects - TBD
+- [ ] Initiative tracking sidebar/ topbar -TBD
 
 Encounter Map Overlay
 - Upload of SVG files for custom maps and grid creation
