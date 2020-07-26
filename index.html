@@ -78,9 +78,10 @@
               </button>
             </div>
             <div class="modal-body">
-              <img id='imgPreview' src="#" alt="your image" class="border rounded" style="width:100%; cursor:crosshair">
-              <p id = "test"></p>
-              <p id = "test2"></p>
+              <div class="container"id="imgPrevContainer">
+                <!-- <img id='imgPreview' src="#" alt="your image" class="border rounded" style="width:100%; cursor:crosshair; display:inline-block;position:relative;"> -->
+                <canvas id="imgPrevCnvs" class="border rounded" style='cursor:crosshair; z-index:20; width:100%'></canvas>
+              </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -111,32 +112,62 @@
   window.addEventListener('load', function() {
     document.getElementById('inputGroupFile01').addEventListener('change', function() {
       if (this.files && this.files[0]) {
-          var img = document.getElementById('imgPreview');  // $('img')[0]
+          // Update master image element 
+          if (~document.getElementById('imgPreview')){ //check if it's the first image uploaded
+            var img = new Image(); // create new image element
+            img.id = 'imgPreview';
+            img.style.display = 'none';
+            document.getElementById("imgPrevContainer").appendChild(img) //add it into the image preview container
+          }
+          else{ //if element already exists just grab that element again
+            img = document.getElementById("imgPreview");
+          };
           img.src = URL.createObjectURL(this.files[0]); // set src to blob url
-          img.onload = imageIsLoaded;
+          img.onload = imageIsLoaded; // allow canvas to populate
       }
     });
   });
 
   function imageIsLoaded() { 
-    // alert("Image successfully uploaded");
-    $("#exampleModalCenter").modal('show'); // blob url
-    point1 = [,];
-    point2 = [,];
-    clickToggle = 0;
-    document.getElementById('imgPreview').addEventListener('click', function(e) {
-      cursorX = e.pageX;
-      cursorY= e.pageY;
-      $( "#test" ).text( "pageX: " + cursorX +",pageY: " + cursorY );
-      if (clickToggle) {
-        point2 = [cursorX, cursorY];
-        clickToggle = 0;
+    // Modal init
+    $("#exampleModalCenter").modal('show'); // show modal
+    point1 = [,]; //initialized empty pt matrix to store grid guides
+    point2 = [,]; //initialized empty pt matrix to store grid guides
+    clickToggle = 0; //switch for pt 1 and pt 2 selection
+
+    // Draw image onto canvas
+    // KNOWN BUGS - Image resolution is much worse than original upload, smoothing doesn't help
+    var cnv = document.getElementById('imgPrevCnvs');
+    var ctx = cnv.getContext("2d");
+    cnv.height = cnv.width/this.width*this.height; //scaling factor depending on image dimensions
+    ctx.drawImage(this,0,0,cnv.width,cnv.height); // draw image on canvas
+
+    // On click get click position and save points to pt array and update grid
+    document.getElementById('imgPrevCnvs').addEventListener('click', function(e) {
+      // Get canvas element and 2d context for drawing points as clicks occur and clearing canvas
+      var cnv = document.getElementById('imgPrevCnvs');
+      var ctx = cnv.getContext("2d");
+      var rect = e.target.getBoundingClientRect(); // get rect of object for click offset
+
+      // Save click points and toggle state
+      if (clickToggle) { // If 1st pt has been chosen
+        point2 = [e.pageX, e.pageY]; //update point
       }
-      else{
-        point1 = [cursorX, cursorY];
-        clickToggle = 1;
+      else{ // If 1st pt hasn't been chosen or choices are reset
+        ctx.clearRect(0,0,cnv.width,cnv.height); // clear canvas
+        ctx.drawImage(document.getElementById('imgPreview'),0,0,cnv.width,cnv.height); // draw image again
+        point1 = [e.pageX, e.pageY]; //update point
+        point2 = [,]; // reset point2 if click is reseting all points
       };
-      $( "#test2" ).text( "pageX: " + point1[0] +",pageY: " + point1[1] );
+      clickToggle = ~clickToggle; //toggle pt chosen
+
+      // Draw circle for chosen point
+      ctx.beginPath();
+      var x = (e.pageX -  rect.left)/rect.width * cnv.width; //offset click and scale to canvas to set proper canvas coordinates
+      var y = (e.pageY -  rect.top)/rect.height* cnv.height; //offset click and scale to canvas to set proper canvas coordinates
+      ctx.arc(x, y, 5, 0, 2 * Math.PI); // create circle
+      ctx.stroke(); // draw stroke
+      ctx.closePath();
     });
   };
 
