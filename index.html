@@ -93,8 +93,8 @@
     </div>
     <div class="row">
       <div class="col-lg-12 text-center">
-        <div class="container border rounded" style="height: 500px; margin-top: 25px">
-        <img src="#" id='myImg' class="img-fluid" alt="Responsive image">
+        <div class="container" id="mapContainer" style="margin-top: 25px; margin-bottom: 25px; padding: 0px">
+        <canvas class = "border rounded" id="mapCnvs" style= 'width:100%; background-color: whitesmoke'></canvas>
         </div>
       </div>
     </div>
@@ -111,6 +111,7 @@
 <script type="text/javascript">
   window.addEventListener('load', function() {
     document.getElementById('inputGroupFile01').addEventListener('change', function() {
+      console.log(this.files && this.files[0]);
       if (this.files && this.files[0]) {
           // Update master image element 
           if (~document.getElementById('imgPreview')){ //check if it's the first image uploaded
@@ -135,6 +136,15 @@
     point2 = [,]; //initialized empty pt matrix to store grid guides
     clickToggle = 0; //switch for pt 1 and pt 2 selection
 
+    // Draw image on main canvas
+    cnvMain = document.getElementById('mapCnvs');
+    ctxMain = cnvMain.getContext("2d");
+    cnvMain.height = cnvMain.width/this.width*this.height; //scaling factor depending on image dimensions
+    cntner = document.getElementById('mapContainer');
+    cntner.style.height = cnvMain.height;
+    ctxMain.drawImage(this,0,0,cnvMain.width,cnvMain.height); // draw image on canvas
+
+
     // Draw image onto canvas
     // KNOWN BUGS - Image resolution is much worse than original upload, smoothing doesn't help
     var cnv = document.getElementById('imgPrevCnvs');
@@ -149,26 +159,89 @@
       var ctx = cnv.getContext("2d");
       var rect = e.target.getBoundingClientRect(); // get rect of object for click offset
 
+      var x = (e.pageX -  rect.left)/rect.width * cnv.width; //offset click and scale to canvas to set proper canvas coordinates
+      var y = (e.pageY -  rect.top)/rect.height* cnv.height; //offset click and scale to canvas to set proper canvas coordinates
+
       // Save click points and toggle state
       if (clickToggle) { // If 1st pt has been chosen
-        point2 = [e.pageX, e.pageY]; //update point
+        point2 = [x, y]; //update point
       }
       else{ // If 1st pt hasn't been chosen or choices are reset
         ctx.clearRect(0,0,cnv.width,cnv.height); // clear canvas
         ctx.drawImage(document.getElementById('imgPreview'),0,0,cnv.width,cnv.height); // draw image again
-        point1 = [e.pageX, e.pageY]; //update point
+        point1 = [x, y]; //update point
         point2 = [,]; // reset point2 if click is reseting all points
       };
-      clickToggle = ~clickToggle; //toggle pt chosen
-
       // Draw circle for chosen point
-      ctx.beginPath();
-      var x = (e.pageX -  rect.left)/rect.width * cnv.width; //offset click and scale to canvas to set proper canvas coordinates
-      var y = (e.pageY -  rect.top)/rect.height* cnv.height; //offset click and scale to canvas to set proper canvas coordinates
-      ctx.arc(x, y, 5, 0, 2 * Math.PI); // create circle
-      ctx.stroke(); // draw stroke
-      ctx.closePath();
+      drawCross(x,y,ctx);
+      if(clickToggle){
+        updateGrid(point1,point2);
+      };
+      clickToggle = ~clickToggle; //toggle pt chosen
     });
+    return;
   };
 
+  function drawCross(x,y,ctx){
+    // ctx - canvas 2D context object
+    // x -x coord of cneter
+    // y coord of center
+    r = 5 // radius of cross
+    // draw veritcal line
+    ctx.beginPath();
+    ctx.moveTo(x-r,y);
+    ctx.lineTo(x+r,y);
+    ctx.stroke();
+    ctx.closePath();
+    // draw horizontal line
+    ctx.beginPath();
+    ctx.moveTo(x,y-r);
+    ctx.lineTo(x,y+r);
+    ctx.stroke();
+    ctx.closePath();
+    return;
+  };
+
+  function updateGrid(point1,point2){
+    var cnv = document.getElementById('imgPrevCnvs');
+    var ctx = cnv.getContext("2d");
+    x1=point1[0];
+    x2=point2[0];
+    y1=point1[1];
+    y2=point2[1];
+
+    console.log(point1);
+    console.log(point2);
+    cellWidth = Math.abs(point1[0]-point2[0]);
+    cellHeight = Math.abs(point1[1]-point2[1]);
+    console.log(cellWidth);
+    console.log(cellHeight);
+    console.log(cnv.width);
+    console.log(cnv.height);
+
+    ctx.beginPath();
+    ctx.moveTo(0,y1);
+    ctx.lineTo(cnv.width,y1);
+    ctx.stroke();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.moveTo(0,y2);
+    ctx.lineTo(cnv.width,y2);
+    ctx.stroke();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.moveTo(x1,0);
+    ctx.lineTo(x1,cnv.height);
+    ctx.stroke();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.moveTo(x2,0);
+    ctx.lineTo(x2,cnv.height);
+    ctx.stroke();
+    ctx.closePath();
+    return;
+  };
 </script>
