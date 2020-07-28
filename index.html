@@ -175,7 +175,12 @@
       // Draw circle for chosen point
       drawCross(x,y,ctx);
       if(clickToggle){
-        updateGrid(point1,point2);
+        // updateGrid(point1,point2);
+        // grid test
+        cellWidth = Math.abs(point1[0]-point2[0]);
+        cellHeight = Math.abs(point1[1]-point2[1]);
+        prevGrid = new grid(cnv.width,cnv.height,cellWidth,cellHeight,[0,0]);
+        prevGrid.drawGrid(ctx);
       };
       clickToggle = ~clickToggle; //toggle pt chosen
     });
@@ -210,14 +215,14 @@
     y1=point1[1];
     y2=point2[1];
 
-    console.log(point1);
-    console.log(point2);
+    // console.log(point1);
+    // console.log(point2);
     cellWidth = Math.abs(point1[0]-point2[0]);
     cellHeight = Math.abs(point1[1]-point2[1]);
-    console.log(cellWidth);
-    console.log(cellHeight);
-    console.log(cnv.width);
-    console.log(cnv.height);
+    // console.log(cellWidth);
+    // console.log(cellHeight);
+    // console.log(cnv.width);
+    // console.log(cnv.height);
 
     ctx.beginPath();
     ctx.moveTo(0,y1);
@@ -243,5 +248,51 @@
     ctx.stroke();
     ctx.closePath();
     return;
+  };
+
+  function grid(xlim, ylim, cellWidth, cellHeight, topleftAnchor){
+    this.xlim = xlim;
+    this.ylim = ylim;
+    this.cellWidth = cellWidth;
+    this.cellHeight = cellHeight;
+    this.topleftAnchor = topleftAnchor;
+    this.xaxis = updateAxis(xlim, topleftAnchor[0], cellWidth);
+    this.yaxis = updateAxis(ylim, topleftAnchor[1], cellHeight);
+
+    this.update = function(xlim, ylim, cellWidth, cellHeight, topleftAnchor){
+      this.xlim = xlim;
+      this.ylim = ylim;
+      this.cellWidth = cellWidth;
+      this.cellHeight = cellHeight;
+      this.topleftAnchor = topleftAnchor;
+      this.xaxis = updateAxis(xlim, topleftAnchor[0], cellWidth);
+      this.yaxis = updateAxis(ylim, topleftAnchor[1], cellHeight);
+    };
+
+    this.drawGrid = function(ctx){
+      this.xaxis.forEach( function(xPt){
+        ctx.beginPath();
+        ctx.moveTo(xPt,0);
+        ctx.lineTo(xPt,xlim);
+        ctx.stroke();
+        ctx.closePath();
+      });
+      this.yaxis.forEach( function(yPt){
+        ctx.beginPath();
+        ctx.moveTo(0,yPt);
+        ctx.lineTo(xlim,yPt);
+        ctx.stroke();
+        ctx.closePath();
+      });
+    };
+
+    function updateAxis(lim, anchorPos, cellDim){
+      n = Math.floor(lim/cellDim);
+      axis = [];
+      for (i=0; i<=n; i++){
+        axis.push(i*cellDim);
+      };
+      return axis;
+    };
   };
 </script>
