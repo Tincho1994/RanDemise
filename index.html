@@ -129,7 +129,20 @@
     });
   });
 
+  // When modal window closes update the map grid
+  $('#exampleModalCenter').on('hidden.bs.modal', function () {
+    mapGrid = prevGrid;
+    cnvMain = document.getElementById('mapCnvs');
+    ctxMain = cnvMain.getContext("2d");
+    mapGrid.scale(cnvMain.width, cnvMain.height); //update grid for new canvas size
+    mapGrid.drawGrid(ctxMain); //draw the grid
+  });
+
   function imageIsLoaded() { 
+
+    console.log(determineTopLeftAnchor([0,5],[5,0]));
+
+
     // Modal init
     $("#exampleModalCenter").modal('show'); // show modal
     point1 = [,]; //initialized empty pt matrix to store grid guides
@@ -172,15 +185,16 @@
         point1 = [x, y]; //update point
         point2 = [,]; // reset point2 if click is reseting all points
       };
-      // Draw circle for chosen point
+      // Draw cross for chosen point
       drawCross(x,y,ctx);
+
+      // GRID TEST
+      // If both points chosen then create and draw grid
       if(clickToggle){
-        // updateGrid(point1,point2);
-        // grid test
-        cellWidth = Math.abs(point1[0]-point2[0]);
-        cellHeight = Math.abs(point1[1]-point2[1]);
-        prevGrid = new grid(cnv.width,cnv.height,cellWidth,cellHeight,[0,0]);
-        prevGrid.drawGrid(ctx);
+        cellWidth = Math.abs(point1[0]-point2[0]); //determine width of selected points
+        cellHeight = Math.abs(point1[1]-point2[1]); //determine height of selected points
+        prevGrid = new grid(cnv.width,cnv.height,cellWidth,cellHeight,determineTopLeftAnchor(point1,point2)); //create new grid w chosen parameters
+        prevGrid.drawGrid(ctx); //draw preview grid
       };
       clickToggle = ~clickToggle; //toggle pt chosen
     });
@@ -207,47 +221,28 @@
     return;
   };
 
-  function updateGrid(point1,point2){
-    var cnv = document.getElementById('imgPrevCnvs');
-    var ctx = cnv.getContext("2d");
-    x1=point1[0];
-    x2=point2[0];
-    y1=point1[1];
-    y2=point2[1];
+  function determineTopLeftAnchor(pt1, pt2){
+    pt1x = pt1[0];
+    pt1y = pt1[1];
+    pt2x = pt2[0];
+    pt2y = pt2[1];
+    topLeft=[[],[]]
 
-    // console.log(point1);
-    // console.log(point2);
-    cellWidth = Math.abs(point1[0]-point2[0]);
-    cellHeight = Math.abs(point1[1]-point2[1]);
-    // console.log(cellWidth);
-    // console.log(cellHeight);
-    // console.log(cnv.width);
-    // console.log(cnv.height);
+    if(pt1x<pt2x && pt1y<pt2y){
+      topLeft[0] = pt1x;
+      topLeft[1] = pt1y;
+    } else if(pt1x>pt2x && pt1y>pt2y){
+      topLeft[0] = pt2x;
+      topLeft[1] = pt2y;
+    } else if(pt1x<pt2x && pt1y>pt2y){
+      topLeft[0] = pt1x;
+      topLeft[1] = pt2y;
+    } else {
+      topLeft[0] = pt2x;
+      topLeft[1] = pt1y;
+    };
 
-    ctx.beginPath();
-    ctx.moveTo(0,y1);
-    ctx.lineTo(cnv.width,y1);
-    ctx.stroke();
-    ctx.closePath();
-
-    ctx.beginPath();
-    ctx.moveTo(0,y2);
-    ctx.lineTo(cnv.width,y2);
-    ctx.stroke();
-    ctx.closePath();
-
-    ctx.beginPath();
-    ctx.moveTo(x1,0);
-    ctx.lineTo(x1,cnv.height);
-    ctx.stroke();
-    ctx.closePath();
-
-    ctx.beginPath();
-    ctx.moveTo(x2,0);
-    ctx.lineTo(x2,cnv.height);
-    ctx.stroke();
-    ctx.closePath();
-    return;
+    return topLeft;
   };
 
   function grid(xlim, ylim, cellWidth, cellHeight, topleftAnchor){
@@ -269,6 +264,15 @@
       this.yaxis = updateAxis(ylim, topleftAnchor[1], cellHeight);
     };
 
+    this.scale = function(newXlim, newYlim){
+      this.cellWidth = this.cellWidth*newXlim/this.xlim;
+      this.cellHeight = this.cellHeight*newYlim/this.ylim;
+      this.xlim = newXlim;
+      this.ylim = newYlim;
+      this.xaxis = updateAxis(newXlim, this.topleftAnchor[0], this.cellWidth);
+      this.yaxis = updateAxis(newYlim, this.topleftAnchor[1], this.cellHeight);
+    };
+
     this.drawGrid = function(ctx){
       this.xaxis.forEach( function(xPt){
         ctx.beginPath();
@@ -287,10 +291,12 @@
     };
 
     function updateAxis(lim, anchorPos, cellDim){
-      n = Math.floor(lim/cellDim);
+      posZero = anchorPos - Math.floor(anchorPos/cellDim)*cellDim;
+      n = Math.floor((lim-posZero)/cellDim);
+      console.log(n);
       axis = [];
       for (i=0; i<=n; i++){
-        axis.push(i*cellDim);
+        axis.push(posZero + i*cellDim);
       };
       return axis;
     };
