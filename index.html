@@ -138,6 +138,8 @@
 
     // Add svg element
     svgView = SVG('#SVGmapCnvs');
+    svgView.viewbox({ x: 0, y: 0, width: 297, height: 210 });
+
 
   });
 
@@ -148,6 +150,10 @@
     ctxMain = cnvMain.getContext("2d");
     mapGrid.scale(cnvMain.width, cnvMain.height); //update grid for new canvas size
     mapGrid.drawGrid(ctxMain); //draw the grid
+
+    mapGrid.scale(854,768);
+    mapGrid.drawGridSVG(svgView);
+
   });
 
   function imageIsLoaded() { 
@@ -168,10 +174,11 @@
     cntner = document.getElementById('mapContainer');
     cntner.style.height = cnvMain.height;
     ctxMain.drawImage(this,0,0,cnvMain.width,cnvMain.height); // draw image on canvas
-    svgView.height = svgView.width/this.width*this.height;
+    // svgView.height = svgView.width/this.width*this.height;
     svgViewImage = svgView.image(this.src);
     svgViewImage.size(this.width, this.height).move(0, 0);
-
+    var line = svgView.line(0, 100, 100, 0).move(20, 20).stroke({ color: '#f06', width: 1, linecap: 'round' })
+    svgView.viewbox({ x: 0, y: 0, width: this.width, height: this.height });
 
     // Draw image onto canvas
     // KNOWN BUGS - Image resolution is much worse than original upload, smoothing doesn't help
@@ -305,10 +312,20 @@
       });
     };
 
+    this.drawGridSVG = function(svgObj){
+      let xlim = this.xlim;
+      let ylim = this.ylim;
+      this.xaxis.forEach( function(xPt){
+        svgObj.line(xPt,0, xPt,ylim).stroke({ color: '#f06', width: 1, linecap: 'round' })
+      });
+      this.yaxis.forEach( function(yPt){
+        svgObj.line(0,yPt, xlim,yPt).stroke({ color: '#f06', width: 1, linecap: 'round' })
+      });
+    };
+
     function updateAxis(lim, anchorPos, cellDim){
       posZero = anchorPos - Math.floor(anchorPos/cellDim)*cellDim;
       n = Math.floor((lim-posZero)/cellDim);
-      console.log(n);
       axis = [];
       for (i=0; i<=n; i++){
         axis.push(posZero + i*cellDim);
