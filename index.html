@@ -78,9 +78,9 @@
               </button>
             </div>
             <div class="modal-body">
-              <div class="container"id="imgPrevContainer">
-                <!-- <img id='imgPreview' src="#" alt="your image" class="border rounded" style="width:100%; cursor:crosshair; display:inline-block;position:relative;"> -->
-                <canvas id="imgPrevCnvs" class="border rounded" style='cursor:crosshair; z-index:20; width:100%'></canvas>
+              <div class="container"id="imgPrevContainer" style='width:100%'> 
+                <!-- <canvas id="imgPrevCnvs" class="border rounded" style='cursor:crosshair; z-index:20; width:100%'></canvas> -->
+                <svg id="imgPrevSVGCnvs" class="border rounded" style='cursor:crosshair'></svg>
               </div>
             </div>
             <div class="modal-footer">
@@ -94,7 +94,6 @@
     <div class="row">
       <div class="col-lg-12 text-center">
         <div class="container" id="mapContainer" style="margin-top: 25px; margin-bottom: 25px; padding: 0px">
-        <canvas class = "border rounded" id="mapCnvs" style= 'width:100%; background-color: whitesmoke'></canvas>
         <svg class = "border rounded" id="SVGmapCnvs" style= 'width:100%; height:500px; background-color: whitesmoke'>
           <ellipse cx="200" cy="200" rx="100" ry = "100"></ellipse>
         </svg>
@@ -136,9 +135,9 @@
       }
     });
 
-    // Add svg element
-    svgView = SVG('#SVGmapCnvs');
-    svgView.viewbox({ x: 0, y: 0, width: 297, height: 210 });
+    // Add global svg element for map tabletop
+    svgView = SVG('#SVGmapCnvs'); //open SVg element as SVG.js object
+    svgView.viewbox({ x: 0, y: 0, width: 297, height: 210 }); //set viewbox intial dimensions
 
 
   });
@@ -146,14 +145,14 @@
   // When modal window closes update the map grid
   $('#exampleModalCenter').on('hidden.bs.modal', function () {
     mapGrid = prevGrid;
-    cnvMain = document.getElementById('mapCnvs');
-    ctxMain = cnvMain.getContext("2d");
-    mapGrid.scale(cnvMain.width, cnvMain.height); //update grid for new canvas size
-    mapGrid.drawGrid(ctxMain); //draw the grid
+    // cnvMain = document.getElementById('mapCnvs');
+    // ctxMain = cnvMain.getContext("2d");
+    // mapGrid.scale(cnvMain.width, cnvMain.height); //update grid for new canvas size
+    // mapGrid.drawGrid(ctxMain); //draw the grid
 
+    // Needs update for proper scaling depending on uploaded image
     mapGrid.scale(854,768);
-    mapGrid.drawGridSVG(svgView);
-
+    mapGrid.drawGridSVG(svgView); //draw grid onto SVG centered on image
   });
 
   function imageIsLoaded() { 
@@ -167,99 +166,158 @@
     point2 = [,]; //initialized empty pt matrix to store grid guides
     clickToggle = 0; //switch for pt 1 and pt 2 selection
 
-    // Draw image on main canvas
-    cnvMain = document.getElementById('mapCnvs');
-    ctxMain = cnvMain.getContext("2d");
-    cnvMain.height = cnvMain.width/this.width*this.height; //scaling factor depending on image dimensions
-    cntner = document.getElementById('mapContainer');
-    cntner.style.height = cnvMain.height;
-    ctxMain.drawImage(this,0,0,cnvMain.width,cnvMain.height); // draw image on canvas
-    // svgView.height = svgView.width/this.width*this.height;
-    svgViewImage = svgView.image(this.src);
-    svgViewImage.size(this.width, this.height).move(0, 0);
-    var line = svgView.line(0, 100, 100, 0).move(20, 20).stroke({ color: '#f06', width: 1, linecap: 'round' })
-    svgView.viewbox({ x: 0, y: 0, width: this.width, height: this.height });
+    // Draw image on main SVG
+    svgViewImage = svgView.image(this.src); // draw image
+    svgViewImage.size(this.width, this.height).move(0, 0); //set image size and set image to 0,0
+    // line = svgView.line(0, 100, 100, 0).move(20, 20).stroke({ color: '#f06', width: 1, linecap: 'round' })
+    svgView.viewbox({ x: 0, y: 0, width: this.width, height: this.height }); //set SVG to image size
 
-    // Draw image onto canvas
+
+    // ------------------------------------------------------------------------------
+
+    // // Draw image onto preview canvas
+    // // KNOWN BUGS - Image resolution is much worse than original upload, smoothing doesn't help
+    // var cnv = document.getElementById('imgPrevCnvs');
+    // var ctx = cnv.getContext("2d");
+    // cnv.height = cnv.width/this.width*this.height; //scaling factor depending on image dimensions
+    // ctx.drawImage(this,0,0,cnv.width,cnv.height); // draw image on canvas
+
+    // // On click get click position and save points to pt array and update grid
+    // document.getElementById('imgPrevCnvs').addEventListener('click', function(e) {
+    //   // Get canvas element and 2d context for drawing points as clicks occur and clearing canvas
+    //   var cnv = document.getElementById('imgPrevCnvs');
+    //   var ctx = cnv.getContext("2d");
+    //   var rect = e.target.getBoundingClientRect(); // get rect of object for click offset
+
+    //   var x = (e.pageX -  rect.left)/rect.width * cnv.width; //offset click and scale to canvas to set proper canvas coordinates
+    //   var y = (e.pageY -  rect.top)/rect.height* cnv.height; //offset click and scale to canvas to set proper canvas coordinates
+
+    //   // Save click points and toggle state
+    //   if (clickToggle) { // If 1st pt has been chosen
+    //     point2 = [x, y]; //update point
+    //   }
+    //   else{ // If 1st pt hasn't been chosen or choices are reset
+    //     ctx.clearRect(0,0,cnv.width,cnv.height); // clear canvas
+    //     ctx.drawImage(document.getElementById('imgPreview'),0,0,cnv.width,cnv.height); // draw image again
+    //     point1 = [x, y]; //update point
+    //     point2 = [,]; // reset point2 if click is reseting all points
+    //   };
+    //   // Draw cross for chosen point
+    //   drawCross(x,y,ctx);
+
+    //   // GRID TEST
+    //   // If both points chosen then create and draw grid
+    //   if(clickToggle){
+    //     cellWidth = Math.abs(point1[0]-point2[0]); //determine width of selected points
+    //     cellHeight = Math.abs(point1[1]-point2[1]); //determine height of selected points
+    //     prevGrid = new grid(cnv.width,cnv.height,cellWidth,cellHeight,determineTopLeftAnchor(point1,point2)); //create new grid w chosen parameters
+    //     prevGrid.drawGrid(ctx); //draw preview grid
+    //   };
+    //   clickToggle = ~clickToggle; //toggle pt chosen
+    // });
+
+    // ------------------------------------------------------------------------------
+
+    // Draw image onto preview canvas
     // KNOWN BUGS - Image resolution is much worse than original upload, smoothing doesn't help
-    var cnv = document.getElementById('imgPrevCnvs');
-    var ctx = cnv.getContext("2d");
-    cnv.height = cnv.width/this.width*this.height; //scaling factor depending on image dimensions
-    ctx.drawImage(this,0,0,cnv.width,cnv.height); // draw image on canvas
+    svgPrevView = SVG('#imgPrevSVGCnvs'); //open SVg element as SVG.js object
+    
+    svgPrevViewImage = svgPrevView.image(this.src); // draw image
+    svgPrevViewImage.size(this.width, this.height).move(0, 0); //set image size and set image to 0,0
+    svgPrevView.viewbox({ x: 0, y: 0, width: this.width, height: this.height }); //set SVG to image size
 
+    prevGrid = new grid(1,1,1,1,[0,0]);
+    crossLines = new cross();
     // On click get click position and save points to pt array and update grid
-    document.getElementById('imgPrevCnvs').addEventListener('click', function(e) {
+    document.getElementById('imgPrevSVGCnvs').addEventListener('click', function(e) {
       // Get canvas element and 2d context for drawing points as clicks occur and clearing canvas
-      var cnv = document.getElementById('imgPrevCnvs');
-      var ctx = cnv.getContext("2d");
+      let previewElem = document.getElementById('imgPrevContainer');
+
       var rect = e.target.getBoundingClientRect(); // get rect of object for click offset
 
-      var x = (e.pageX -  rect.left)/rect.width * cnv.width; //offset click and scale to canvas to set proper canvas coordinates
-      var y = (e.pageY -  rect.top)/rect.height* cnv.height; //offset click and scale to canvas to set proper canvas coordinates
+      // var x = (e.pageX -  rect.left)/rect.width * previewElem.width; //offset click and scale to canvas to set proper canvas coordinates
+      // var y = (e.pageY -  rect.top)/rect.height* previewElem.height; //offset click and scale to canvas to set proper canvas coordinates
+
+      var x = e.pageX;
+      var y = e.pageY;
 
       // Save click points and toggle state
       if (clickToggle) { // If 1st pt has been chosen
         point2 = [x, y]; //update point
       }
       else{ // If 1st pt hasn't been chosen or choices are reset
-        ctx.clearRect(0,0,cnv.width,cnv.height); // clear canvas
-        ctx.drawImage(document.getElementById('imgPreview'),0,0,cnv.width,cnv.height); // draw image again
+        crossLines.removeCrosses();
         point1 = [x, y]; //update point
         point2 = [,]; // reset point2 if click is reseting all points
       };
       // Draw cross for chosen point
-      drawCross(x,y,ctx);
+      crossLines.drawCross(x,y,svgPrevView);
 
       // GRID TEST
       // If both points chosen then create and draw grid
       if(clickToggle){
         cellWidth = Math.abs(point1[0]-point2[0]); //determine width of selected points
         cellHeight = Math.abs(point1[1]-point2[1]); //determine height of selected points
-        prevGrid = new grid(cnv.width,cnv.height,cellWidth,cellHeight,determineTopLeftAnchor(point1,point2)); //create new grid w chosen parameters
-        prevGrid.drawGrid(ctx); //draw preview grid
+  
+        prevGrid.update(854,768,cellWidth,cellHeight,determineTopLeftAnchor(point1,point2));
+        prevGrid.drawGridSVG(svgPrevView); //draw preview grid
+        
       };
       clickToggle = ~clickToggle; //toggle pt chosen
     });
+
+
+    //---------------------------------------------------
+
     return;
   };
 
-  function drawCross(x,y,ctx){
-    // ctx - canvas 2D context object
-    // x -x coord of cneter
-    // y coord of center
-    r = 5 // radius of cross
-    // draw veritcal line
-    ctx.beginPath();
-    ctx.moveTo(x-r,y);
-    ctx.lineTo(x+r,y);
-    ctx.stroke();
-    ctx.closePath();
-    // draw horizontal line
-    ctx.beginPath();
-    ctx.moveTo(x,y-r);
-    ctx.lineTo(x,y+r);
-    ctx.stroke();
-    ctx.closePath();
-    return;
+  function cross(){
+    this.crossLines =[];
+
+    this.drawCross = function(x,y,svgObj){
+      // ctx - canvas 2D context object
+      // x -x coord of cneter
+      // y coord of center
+      r = 5 // radius of cross
+      // draw veritcal line
+      let line1 = svgObj.line(x-r,y, x+r,y).stroke({ color: '#f06', width: 1, linecap: 'round' });
+      // draw horizontal line
+      let line2 = svgObj.line(x,y-r,x,y+r).stroke({ color: '#f06', width: 1, linecap: 'round' });
+      this.crossLines.push(line1);
+      this.crossLines.push(line2);
+      return;
+    };
+
+    this.removeCrosses = function(){
+      if (this.crossLines.length){
+        this.crossLines.forEach( function(line){
+          line.remove();
+        });
+      };
+    };
   };
 
   function determineTopLeftAnchor(pt1, pt2){
+    // Using 2 points determine top left corner
+
+    // extract points, initialize topleft corner array
     pt1x = pt1[0];
     pt1y = pt1[1];
     pt2x = pt2[0];
     pt2y = pt2[1];
     topLeft=[[],[]]
 
-    if(pt1x<pt2x && pt1y<pt2y){
+    if(pt1x<pt2x && pt1y<pt2y){ //if pt1 is left corner
       topLeft[0] = pt1x;
       topLeft[1] = pt1y;
-    } else if(pt1x>pt2x && pt1y>pt2y){
+    } else if(pt1x>pt2x && pt1y>pt2y){ //if pt 2 is left corner
       topLeft[0] = pt2x;
       topLeft[1] = pt2y;
-    } else if(pt1x<pt2x && pt1y>pt2y){
+    } else if(pt1x<pt2x && pt1y>pt2y){ //if pt1 is bottom left and pt2 is top right
       topLeft[0] = pt1x;
       topLeft[1] = pt2y;
-    } else {
+    } else { //if pt2 is bottom left and pt1 is top right
       topLeft[0] = pt2x;
       topLeft[1] = pt1y;
     };
@@ -268,6 +326,7 @@
   };
 
   function grid(xlim, ylim, cellWidth, cellHeight, topleftAnchor){
+    // Grid object for storing grid parameters
     this.xlim = xlim;
     this.ylim = ylim;
     this.cellWidth = cellWidth;
@@ -275,8 +334,11 @@
     this.topleftAnchor = topleftAnchor;
     this.xaxis = updateAxis(xlim, topleftAnchor[0], cellWidth);
     this.yaxis = updateAxis(ylim, topleftAnchor[1], cellHeight);
+    this.xaxis_lines =[];
+    this.yaxis_lines =[];
 
     this.update = function(xlim, ylim, cellWidth, cellHeight, topleftAnchor){
+      //Method for updating grid object
       this.xlim = xlim;
       this.ylim = ylim;
       this.cellWidth = cellWidth;
@@ -287,6 +349,7 @@
     };
 
     this.scale = function(newXlim, newYlim){
+      //Scale grid to a new X, Y size
       this.cellWidth = this.cellWidth*newXlim/this.xlim;
       this.cellHeight = this.cellHeight*newYlim/this.ylim;
       this.xlim = newXlim;
@@ -296,14 +359,16 @@
     };
 
     this.drawGrid = function(ctx){
-      this.xaxis.forEach( function(xPt){
+      //Draw grid on canvas
+      // ctx: 2d canvas context object
+      this.xaxis.forEach( function(xPt){ //draw x axis lines
         ctx.beginPath();
         ctx.moveTo(xPt,0);
         ctx.lineTo(xPt,xlim);
         ctx.stroke();
         ctx.closePath();
       });
-      this.yaxis.forEach( function(yPt){
+      this.yaxis.forEach( function(yPt){ //daraw y axis lines
         ctx.beginPath();
         ctx.moveTo(0,yPt);
         ctx.lineTo(xlim,yPt);
@@ -313,14 +378,32 @@
     };
 
     this.drawGridSVG = function(svgObj){
+      let xaxis_lines =[];
+      let yaxis_lines =[];
+      // Draw grid on SVG object
+      // svgObj: SVG.js SVG object
       let xlim = this.xlim;
       let ylim = this.ylim;
-      this.xaxis.forEach( function(xPt){
-        svgObj.line(xPt,0, xPt,ylim).stroke({ color: '#f06', width: 1, linecap: 'round' })
+
+      if (xaxis_lines || yaxis_lines){
+        this.xaxis_lines.forEach( function(line){
+          line.remove();
+        });
+        this.yaxis_lines.forEach( function(line){
+          line.remove();
+        });
+      };
+
+      this.xaxis.forEach( function(xPt){ //draw x axis lines
+        let xline = svgObj.line(xPt,0, xPt,ylim).stroke({ color: '#f06', width: 1, linecap: 'round' });
+        xaxis_lines.push(xline);
       });
-      this.yaxis.forEach( function(yPt){
-        svgObj.line(0,yPt, xlim,yPt).stroke({ color: '#f06', width: 1, linecap: 'round' })
+      this.yaxis.forEach( function(yPt){ //draw y axis lines
+        let yline = svgObj.line(0,yPt, xlim,yPt).stroke({ color: '#f06', width: 1, linecap: 'round' });
+        yaxis_lines.push(yline);
       });
+      this.xaxis_lines = xaxis_lines;
+      this.yaxis_lines = yaxis_lines;
     };
 
     function updateAxis(lim, anchorPos, cellDim){
