@@ -80,7 +80,6 @@
             <div class="modal-body">
               <div class="row">
                 <div class="container col-lg-8"id="imgPrevContainer" style='width:100%; padding: 0px'> 
-                  <!-- <canvas id="imgPrevCnvs" class="border rounded" style='cursor:crosshair; z-index:20; width:100%'></canvas> -->
                   <svg id="imgPrevSVGCnvs" class="border rounded" style='cursor:crosshair'></svg>
                 </div>
                 <div class="container col-lg-4"id="imgPrevZoomContainer" style='width:100%; padding: 0px'> 
@@ -90,17 +89,17 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Save changes</button>
+              <button type="button" id = "saveMap" class="btn btn-primary" data-dismiss="modal">Save changes</button>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <!-- Main Viewer -->
     <div class="row">
       <div class="col-lg-12 text-center">
         <div class="container" id="mapContainer" style="margin-top: 25px; margin-bottom: 25px; padding: 0px">
         <svg class = "border rounded" id="SVGmapCnvs" style= 'width:100%; height:500px; background-color: whitesmoke'>
-          <ellipse cx="200" cy="200" rx="100" ry = "100"></ellipse>
         </svg>
         </div>
       </div>
@@ -115,6 +114,7 @@
   <!-- Panzoom JavaScript -->
   <!-- https://github.com/svgdotjs/svg.panzoom.js -->
   <script src="javascript/node_modules/@svgdotjs/svg.panzoom.js/dist/svg.panzoom.js"></script>
+  <script src="javascript/node_modules/@svgdotjs/svg.draggable.js/dist/svg.draggable.js"></script>
   
 </body>
 
@@ -123,7 +123,7 @@
 <script type="text/javascript">
   window.addEventListener('load', function() {
     document.getElementById('inputGroupFile01').addEventListener('change', function() {
-      console.log(this.files && this.files[0]);
+      // console.log(this.files && this.files[0]);
       if (this.files && this.files[0]) {
           // Update master image element 
           if (~document.getElementById('imgPreview')){ //check if it's the first image uploaded
@@ -148,15 +148,21 @@
   });
 
   // When modal window closes update the map grid
-  $('#exampleModalCenter').on('hidden.bs.modal', function () {
+  $('#saveMap').click(function() {
     mapGrid = prevGrid;
-    // cnvMain = document.getElementById('mapCnvs');
-    // ctxMain = cnvMain.getContext("2d");
-    // mapGrid.scale(cnvMain.width, cnvMain.height); //update grid for new canvas size
-    // mapGrid.drawGrid(ctxMain); //draw the grid
+    let img = document.getElementById("imgPreview");
 
-    // Needs update for proper scaling depending on uploaded image
-    mapGrid.scale(854,768);
+    // Draw image on main SVG
+    svgViewImage = svgView.image(img.src); // draw image
+    svgViewImage.size(img.naturalWidth, img.naturalHeight).move(0, 0); //set image size and set image to 0,0
+    svgView.viewbox({ x: 0, y: 0, width: img.naturalWidth, height: img.naturalHeight }); //set SVG to image size
+
+    elem = svgView.rect(100,100).fill('#f06');
+    elem.draggable();
+
+
+
+    mapGrid.scale(img.naturalWidth,img.naturalHeight);
     mapGrid.drawGridSVG(svgView); //draw grid onto SVG centered on image
   });
 
@@ -171,58 +177,16 @@
     point2 = [,]; //initialized empty pt matrix to store grid guides
     clickToggle = 0; //switch for pt 1 and pt 2 selection
 
-    // Draw image on main SVG
-    svgViewImage = svgView.image(this.src); // draw image
-    svgViewImage.size(this.width, this.height).move(0, 0); //set image size and set image to 0,0
-    // line = svgView.line(0, 100, 100, 0).move(20, 20).stroke({ color: '#f06', width: 1, linecap: 'round' })
-    svgView.viewbox({ x: 0, y: 0, width: this.width, height: this.height }); //set SVG to image size
+    // // Draw image on main SVG
+    // svgViewImage = svgView.image(this.src); // draw image
+    // svgViewImage.size(this.width, this.height).move(0, 0); //set image size and set image to 0,0
+    // svgView.viewbox({ x: 0, y: 0, width: this.width, height: this.height }); //set SVG to image size
 
     let previewElem = document.getElementById('imgPrevContainer');
     previewElem.width = this.width;
     previewElem.height = this.height;
 
     // ------------------------------------------------------------------------------
-
-    // // Draw image onto preview canvas
-    // // KNOWN BUGS - Image resolution is much worse than original upload, smoothing doesn't help
-    // var cnv = document.getElementById('imgPrevCnvs');
-    // var ctx = cnv.getContext("2d");
-    // cnv.height = cnv.width/this.width*this.height; //scaling factor depending on image dimensions
-    // ctx.drawImage(this,0,0,cnv.width,cnv.height); // draw image on canvas
-
-    // // On click get click position and save points to pt array and update grid
-    // document.getElementById('imgPrevCnvs').addEventListener('click', function(e) {
-    //   // Get canvas element and 2d context for drawing points as clicks occur and clearing canvas
-    //   var cnv = document.getElementById('imgPrevCnvs');
-    //   var ctx = cnv.getContext("2d");
-    //   var rect = e.target.getBoundingClientRect(); // get rect of object for click offset
-
-    //   var x = (e.pageX -  rect.left)/rect.width * cnv.width; //offset click and scale to canvas to set proper canvas coordinates
-    //   var y = (e.pageY -  rect.top)/rect.height* cnv.height; //offset click and scale to canvas to set proper canvas coordinates
-
-    //   // Save click points and toggle state
-    //   if (clickToggle) { // If 1st pt has been chosen
-    //     point2 = [x, y]; //update point
-    //   }
-    //   else{ // If 1st pt hasn't been chosen or choices are reset
-    //     ctx.clearRect(0,0,cnv.width,cnv.height); // clear canvas
-    //     ctx.drawImage(document.getElementById('imgPreview'),0,0,cnv.width,cnv.height); // draw image again
-    //     point1 = [x, y]; //update point
-    //     point2 = [,]; // reset point2 if click is reseting all points
-    //   };
-    //   // Draw cross for chosen point
-    //   drawCross(x,y,ctx);
-
-    //   // GRID TEST
-    //   // If both points chosen then create and draw grid
-    //   if(clickToggle){
-    //     cellWidth = Math.abs(point1[0]-point2[0]); //determine width of selected points
-    //     cellHeight = Math.abs(point1[1]-point2[1]); //determine height of selected points
-    //     prevGrid = new grid(cnv.width,cnv.height,cellWidth,cellHeight,determineTopLeftAnchor(point1,point2)); //create new grid w chosen parameters
-    //     prevGrid.drawGrid(ctx); //draw preview grid
-    //   };
-    //   clickToggle = ~clickToggle; //toggle pt chosen
-    // });
 
     // ------------------------------------------------------------------------------
 
@@ -247,9 +211,10 @@
     document.getElementById('imgPrevSVGCnvs').addEventListener('click', function(e) {
       // Get canvas element and 2d context for drawing points as clicks occur and clearing canvas
       let previewElem = document.getElementById('imgPrevContainer');
-      console.log(previewElem.height);
+      let previewSVG = document.getElementById('imgPrevSVGCnvs');
+      let img = document.getElementById("imgPreview");
 
-      var rect = e.target.getBoundingClientRect(); // get rect of object for click offset
+      var rect = previewSVG.getBoundingClientRect(); // get rect of object for click offset
 
       let x = (e.pageX -  rect.left)/rect.width * previewElem.width; //offset click and scale to canvas to set proper canvas coordinates
       let y = (e.pageY -  rect.top)/rect.height* previewElem.height; //offset click and scale to canvas to set proper canvas coordinates
@@ -273,7 +238,7 @@
         cellWidth = Math.abs(point1[0]-point2[0]); //determine width of selected points
         cellHeight = Math.abs(point1[1]-point2[1]); //determine height of selected points
   
-        prevGrid.update(854,768,cellWidth,cellHeight,determineTopLeftAnchor(point1,point2));
+        prevGrid.update(img.naturalWidth,img.naturalHeight,cellWidth,cellHeight,determineTopLeftAnchor(point1,point2));
         prevGrid.drawGridSVG(svgPrevView); //draw preview grid
         
       };
@@ -282,9 +247,11 @@
 
     document.getElementById('imgPrevSVGCnvs').addEventListener('mousemove', function(e) {
       let previewElem = document.getElementById('imgPrevContainer');
-      console.log(previewElem.height);
+      let previewSVG = document.getElementById('imgPrevSVGCnvs');
 
-      var rect = e.target.getBoundingClientRect(); // get rect of object for click offset
+      // var rect = e.target.getBoundingClientRect(); // get rect of object for click offset
+
+      var rect = previewSVG.getBoundingClientRect();
 
       let x = (e.pageX -  rect.left)/rect.width * previewElem.width; //offset click and scale to canvas to set proper canvas coordinates
       let y = (e.pageY -  rect.top)/rect.height* previewElem.height; //offset click and scale to canvas to set proper canvas coordinates
@@ -352,6 +319,16 @@
     };
 
     return topLeft;
+  };
+
+  function draggableElem(svgEl){
+    if (!svgEl) return console.error('makeDraggable() needs an element');
+
+    this.svgEl = svgEl
+    console.log("made draggableElem");
+    svgEl.addEventListener('mouseDown', function(e){
+      console.log("you clicked the element!");
+    });
   };
 
   function grid(xlim, ylim, cellWidth, cellHeight, topleftAnchor){
