@@ -8,9 +8,10 @@ MVP: Improved intiative but with a map, token control, custom map upload and gri
 TODO
 - [x] map uploader w grid generation - Martin
     - [x] incorporate zoom on upload tool https://github.com/d3/d3-zoom - Martin
-- [ ] Token uploader and removal tool - Martin
+- [x] Token uploader and removal tool - Martin
     - [x] make elements draggable
-    - [ ] uploader for custom elements
+    - [x] uploader for custom elements
+- [ ] Restructure the dangass map/ main svg to actually have an architecture and not just be a bunch of floating objects - Martin
 - [ ] Unique instance on each load to allow for link sharing of sessions, like in improved intiative - Brendan
 - [ ] D3 integration to image frame to allow for interactable objects - TBD
 - [ ] Initiative tracking sidebar/ topbar -TBD
