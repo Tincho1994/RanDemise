@@ -60,14 +60,21 @@
         </ul>
       </div>
     </div>  
-    <div class="row">
+    <div class="row" style  = "margin-bottom: 20px">
       <div class="custom-file">
           <input type="file" class="custom-file-input" id="inputGroupFile01"
           aria-describedby="inputGroupFileAddon01">
         <label class="custom-file-label" for="inputGroupFile01">Choose file for map</label>
       </div>
+    </div>
+    <div class="row">
+      <div class="custom-file">
+          <input type="file" class="custom-file-input" id="tokenUploader"
+          aria-describedby="tokenUploader">
+        <label class="custom-file-label" for="tokenUploader">Choose file for tokens</label>
+      </div>
 
-      <!-- Modal -->
+      <!-- Modal for map uploader -->
       <div class="modal fade hide" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document" style = "max-width: 1000px">
           <div class="modal-content">
@@ -90,6 +97,30 @@
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
               <button type="button" id = "saveMap" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Modal for token uploader -->
+      <div class="modal fade hide" id="tokenModal" tabindex="-1" role="dialog" aria-labelledby="tokenModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document" style = "max-width: 1000px">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="tokenModalTitle">Token Uploader</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="container col-lg-4"id="tokenPreviewContainer" style='width:100%; padding: 0px'> 
+                  <svg id="tokenPrevCnvs" class="border rounded"></svg>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" id = "saveTokens" class="btn btn-primary" data-dismiss="modal">Save changes</button>
             </div>
           </div>
         </div>
@@ -140,6 +171,19 @@
       }
     });
 
+    document.getElementById('tokenUploader').addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+          // Update master image element 
+          var tokenImg = new Image(); // create new image element
+          tokenImg.id = 'tokenPreview'
+          tokenImg.style.display = 'none';
+          document.getElementById("tokenPreviewContainer").appendChild(tokenImg) //add it into the image preview container
+      
+          tokenImg.src = URL.createObjectURL(this.files[0]); // set src to blob url
+          tokenImg.onload = tokenIsLoaded; // allow canvas to populate
+      }
+    });
+
     // Add global svg element for map tabletop
     svgView = SVG('#SVGmapCnvs'); //open SVg element as SVG.js object
     svgView.viewbox({ x: 0, y: 0, width: 297, height: 210 }); //set viewbox intial dimensions
@@ -157,14 +201,43 @@
     svgViewImage.size(img.naturalWidth, img.naturalHeight).move(0, 0); //set image size and set image to 0,0
     svgView.viewbox({ x: 0, y: 0, width: img.naturalWidth, height: img.naturalHeight }); //set SVG to image size
 
-    elem = svgView.rect(100,100).fill('#f06');
-    elem.draggable();
+    // elem = svgView.rect(100,100).fill('#f06');
+    // elem.draggable();
 
 
 
     mapGrid.scale(img.naturalWidth,img.naturalHeight);
     mapGrid.drawGridSVG(svgView); //draw grid onto SVG centered on image
   });
+
+  // When modal window closes update the map grid
+  $('#saveTokens').click(function() {
+    let img = document.getElementById("tokenPreview");
+
+    if (mapGrid.cellWidth<mapGrid.cellHeight){
+      tokensize = mapGrid.cellWidth;
+    } else {
+      tokensize = mapGrid.cellHeight;
+    };
+    
+    // Draw image on main SVG
+    svgViewImage = svgView.image(img.src); // draw image
+    svgViewImage.size(tokensize, tokensize).move(0, 0); //set image size and set image to 0,0
+
+    svgViewImage.draggable();
+  });
+
+  function tokenIsLoaded() { 
+    // Modal init
+    $("#tokenModal").modal('show'); // show modal
+    let previewElem = document.getElementById('tokenPreviewContainer');
+    previewElem.width = this.width;
+    previewElem.height = this.height;
+
+    tokenPrevView = SVG('#tokenPrevCnvs'); //open SVg element as SVG.js object
+    tokenPrevImage = tokenPrevView.image(this.src); // draw image
+    tokenPrevImage.size(200, 200).move(0, 0); //set image size and set image to 0,0
+  }
 
   function imageIsLoaded() { 
 
