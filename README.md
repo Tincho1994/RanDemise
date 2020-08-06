@@ -6,7 +6,7 @@ Functionality:
 MVP: Improved intiative but with a map, token control, custom map upload and grid creation
 
 TODO
-- [x] map uploader w grid generation - Martin 
+- [x] map uploader w grid generation - Martin
     - [x] incorporate zoom on upload tool https://github.com/d3/d3-zoom - Martin
 - [ ] Token uploader and removal tool - Martin
     - [x] make elements draggable
@@ -32,7 +32,7 @@ DM Encounter Management
 -  Pre-plan and upload monsters with stats and health for individual encounters
 -  Spell/ ability preview
 
-DM Profile
+DM Profile - Brendan
 -  Saved maps
 -  Saved encounters
 - Saved monsters
