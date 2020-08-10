@@ -146,6 +146,8 @@
   <!-- https://github.com/svgdotjs/svg.panzoom.js -->
   <script src="javascript/node_modules/@svgdotjs/svg.panzoom.js/dist/svg.panzoom.js"></script>
   <script src="javascript/node_modules/@svgdotjs/svg.draggable.js/dist/svg.draggable.js"></script>
+  <!-- Panzoom JavaScript -->
+  <script src="javascript/interactMap.js"></script>
   
 </body>
 
@@ -186,6 +188,7 @@
 
     // Add global svg element for map tabletop
     svgView = SVG('#SVGmapCnvs'); //open SVg element as SVG.js object
+    interactMapObj = new interactMap(svgView,'#SVGmapCnvs');
     svgView.viewbox({ x: 0, y: 0, width: 297, height: 210 }); //set viewbox intial dimensions
 
 
@@ -197,9 +200,10 @@
     let img = document.getElementById("imgPreview");
 
     // Draw image on main SVG
-    svgViewImage = svgView.image(img.src); // draw image
-    svgViewImage.size(img.naturalWidth, img.naturalHeight).move(0, 0); //set image size and set image to 0,0
-    svgView.viewbox({ x: 0, y: 0, width: img.naturalWidth, height: img.naturalHeight }); //set SVG to image size
+    // svgViewImage = svgView.image(img.src); // draw image
+    // svgViewImage.size(img.naturalWidth, img.naturalHeight).move(0, 0); //set image size and set image to 0,0
+    // svgView.viewbox({ x: 0, y: 0, width: img.naturalWidth, height: img.naturalHeight }); //set SVG to image size
+    interactMapObj.updateBackground(img);
 
     // elem = svgView.rect(100,100).fill('#f06');
     // elem.draggable();
