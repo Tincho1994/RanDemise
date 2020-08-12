@@ -203,32 +203,32 @@
     // svgViewImage = svgView.image(img.src); // draw image
     // svgViewImage.size(img.naturalWidth, img.naturalHeight).move(0, 0); //set image size and set image to 0,0
     // svgView.viewbox({ x: 0, y: 0, width: img.naturalWidth, height: img.naturalHeight }); //set SVG to image size
-    interactMapObj.updateBackground(img);
-
+    interactMapObj.assignBackground(img);
+    interactMapObj.updateBackground();
+    interactMapObj.assignGrid(mapGrid);
+    interactMapObj.updateGrid();
+    
     // elem = svgView.rect(100,100).fill('#f06');
     // elem.draggable();
 
-
-
-    mapGrid.scale(img.naturalWidth,img.naturalHeight);
-    mapGrid.drawGridSVG(svgView); //draw grid onto SVG centered on image
   });
 
-  // When modal window closes update the map grid
+  // When modal window closes update the tokens
   $('#saveTokens').click(function() {
     let img = document.getElementById("tokenPreview");
 
-    if (mapGrid.cellWidth<mapGrid.cellHeight){
-      tokensize = mapGrid.cellWidth;
-    } else {
-      tokensize = mapGrid.cellHeight;
-    };
+    interactMapObj.addToken(img);
+    // if (mapGrid.cellWidth<mapGrid.cellHeight){
+    //   tokensize = mapGrid.cellWidth;
+    // } else {
+    //   tokensize = mapGrid.cellHeight;
+    // };
     
-    // Draw image on main SVG
-    svgViewImage = svgView.image(img.src); // draw image
-    svgViewImage.size(tokensize, tokensize).move(0, 0); //set image size and set image to 0,0
+    // // Draw image on main SVG
+    // svgViewImage = svgView.image(img.src); // draw image
+    // svgViewImage.size(tokensize, tokensize).move(0, 0); //set image size and set image to 0,0
 
-    svgViewImage.draggable();
+    // svgViewImage.draggable();
   });
 
   function tokenIsLoaded() { 
@@ -396,16 +396,6 @@
     };
 
     return topLeft;
-  };
-
-  function draggableElem(svgEl){
-    if (!svgEl) return console.error('makeDraggable() needs an element');
-
-    this.svgEl = svgEl
-    console.log("made draggableElem");
-    svgEl.addEventListener('mouseDown', function(e){
-      console.log("you clicked the element!");
-    });
   };
 
   function grid(xlim, ylim, cellWidth, cellHeight, topleftAnchor){
