@@ -16,6 +16,9 @@ function interactMap(svgObj, svgContainer){
 	};
 
 	this.updateBackground = function(){
+		if(this.backgroundImg){
+			this.backgroundImg.remove();
+		};
 		this.backgroundImg = this.svg.image(this.backgroundImgSrc.src);
 		this.backgroundImg.size(this.backgroundImgSrc.naturalWidth, this.backgroundImgSrc.naturalHeight).move(0, 0);
 		this.svg.viewbox({ x: 0, y: 0, width: this.backgroundImgSrc.naturalWidth, height: this.backgroundImgSrc.naturalHeight });
@@ -45,4 +48,36 @@ function interactMap(svgObj, svgContainer){
 function token(tokenImg,tokenName){
 	this.img = tokenImg;
 	this.name = tokenName;
+};
+
+function interactPreview(svgObj, svgContainer){
+	this.svg = svgObj;
+	this.svgContainer = svgContainer;
+
+	this.getParentSVGContainer = function(){
+		return document.getElementById(this.svgContainer);
+	};
+
+	this.getSVGobj = function(){
+		return this.svg;
+	};
+
+	this.assignBackground = function(img){
+		this.backgroundImgSrc = img;
+	};
+
+	this.updateBackground = function(viewX = null, viewY = null){
+		if(this.backgroundImg){
+			this.backgroundImg.remove();
+		};
+		this.backgroundImg = this.svg.image(this.backgroundImgSrc.src);
+		this.backgroundImg.size(this.backgroundImgSrc.naturalWidth, this.backgroundImgSrc.naturalHeight).move(0, 0);
+		if (viewX & viewY){
+			console.log("custom");
+			this.svg.viewbox({ x: 0, y: 0, width: viewX, height: viewY });
+		}
+		else {
+			this.svg.viewbox({ x: 0, y: 0, width: this.backgroundImgSrc.naturalWidth, height: this.backgroundImgSrc.naturalHeight });
+		};
+	};
 };

@@ -70,7 +70,7 @@
     <div class="row">
       <div class="custom-file">
           <input type="file" class="custom-file-input" id="tokenUploader"
-          aria-describedby="tokenUploader">
+          aria-describedby="tokenUploaderAddon01">
         <label class="custom-file-label" for="tokenUploader">Choose file for tokens</label>
       </div>
 
@@ -159,31 +159,38 @@
       // console.log(this.files && this.files[0]);
       if (this.files && this.files[0]) {
           // Update master image element 
-          if (~document.getElementById('imgPreview')){ //check if it's the first image uploaded
-            var img = new Image(); // create new image element
-            img.id = 'imgPreview';
-            img.style.display = 'none';
-            document.getElementById("imgPrevContainer").appendChild(img) //add it into the image preview container
-          }
-          else{ //if element already exists just grab that element again
+
+          if (document.getElementById('imgPreview')){ //if element already exists just grab that element again
             img = document.getElementById("imgPreview");
+            img.remove();
           };
+
+          var img = new Image(); // create new image element
+          img.id = 'imgPreview';
+          img.style.display = 'none';
+          document.getElementById("imgPrevContainer").appendChild(img) //add it into the image preview container
           img.src = URL.createObjectURL(this.files[0]); // set src to blob url
           img.onload = imageIsLoaded; // allow canvas to populate
-      }
+      };
     });
 
     document.getElementById('tokenUploader').addEventListener('change', function() {
       if (this.files && this.files[0]) {
           // Update master image element 
+          if (document.getElementById('tokenPreview')){ //check if it's the first image uploaded
+            tokenImg = document.getElementById("tokenPreview");
+            tokenImg.remove();
+          };
+
           var tokenImg = new Image(); // create new image element
           tokenImg.id = 'tokenPreview'
           tokenImg.style.display = 'none';
           document.getElementById("tokenPreviewContainer").appendChild(tokenImg) //add it into the image preview container
+          
       
           tokenImg.src = URL.createObjectURL(this.files[0]); // set src to blob url
           tokenImg.onload = tokenIsLoaded; // allow canvas to populate
-      }
+      };
     });
 
     // Add global svg element for map tabletop
@@ -239,7 +246,7 @@
     previewElem.width = this.width;
     previewElem.height = this.height;
 
-    tokenPrevView = SVG('#tokenPrevCnvs'); //open SVg element as SVG.js object
+    tokenPrevView = SVG('#tokenPrevCnvs'); //open SVG element as SVG.js object
     tokenPrevImage = tokenPrevView.image(this.src); // draw image
     tokenPrevImage.size(200, 200).move(0, 0); //set image size and set image to 0,0
   }
@@ -269,16 +276,19 @@
     // ------------------------------------------------------------------------------
 
     // Draw image onto preview canvas
-    // KNOWN BUGS - Image resolution is much worse than original upload, smoothing doesn't help
     svgPrevView = SVG('#imgPrevSVGCnvs'); //open SVg element as SVG.js object
     svgPrevZoom = SVG('#imgPrevZoom'); //open SVg element as SVG.js object
+
+    previewZoom = new interactPreview(svgPrevZoom, previewElem);
     
     svgPrevViewImage = svgPrevView.image(this.src); // draw image
-    svgPrevZoomImage = svgPrevZoom.image(this.src); // draw image
+    // svgPrevZoomImage = svgPrevZoom.image(this.src); // draw image
+    previewZoom.assignBackground(this);
+    previewZoom.updateBackground(100,100);
     svgPrevViewImage.size(this.width, this.height).move(0, 0); //set image size and set image to 0,0
-    svgPrevZoomImage.size(this.width, this.height).move(0, 0); //set image size and set image to 0,0
+    // svgPrevZoomImage.size(this.width, this.height).move(0, 0); //set image size and set image to 0,0
     svgPrevView.viewbox({ x: 0, y: 0, width: this.width, height: this.height }); //set SVG to image size
-    svgPrevZoom.viewbox({ x: 0, y: 0, width: 100, height: 100 }); //set SVG to image size
+    // svgPrevZoom.viewbox({ x: 0, y: 0, width: 100, height: 100 }); //set SVG to image size
 
     prevGrid = new grid(1,1,1,1,[0,0]);
     crossLines = new cross();
@@ -334,7 +344,8 @@
       let x = (e.pageX -  rect.left)/rect.width * previewElem.width; //offset click and scale to canvas to set proper canvas coordinates
       let y = (e.pageY -  rect.top)/rect.height* previewElem.height; //offset click and scale to canvas to set proper canvas coordinates
 
-      svgPrevZoom = SVG('#imgPrevZoom'); //open SVg element as SVG.js object
+      // svgPrevZoom = SVG('#imgPrevZoom'); //open SVg element as SVG.js object
+      svgPrevZoom = previewZoom.getSVGobj();
       svgPrevZoom.viewbox({ x: x-50, y: y-50, width: 100, height: 100 }); //set SVG to image size
 
       crossLinesZoom.removeCrosses();
