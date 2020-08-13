@@ -188,6 +188,7 @@
 
     // Add global svg element for map tabletop
     svgView = SVG('#SVGmapCnvs'); //open SVg element as SVG.js object
+    svgView.panZoom();
     interactMapObj = new interactMap(svgView,'#SVGmapCnvs');
     svgView.viewbox({ x: 0, y: 0, width: 297, height: 210 }); //set viewbox intial dimensions
 
@@ -216,8 +217,8 @@
   // When modal window closes update the tokens
   $('#saveTokens').click(function() {
     let img = document.getElementById("tokenPreview");
-
-    interactMapObj.addToken(img);
+    let placeholderToken = new token(img, "uploadedToken");
+    interactMapObj.addToken(placeholderToken);
     // if (mapGrid.cellWidth<mapGrid.cellHeight){
     //   tokensize = mapGrid.cellWidth;
     // } else {

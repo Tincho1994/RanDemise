@@ -26,18 +26,23 @@ function interactMap(svgObj, svgContainer){
 		this.grid.drawGridSVG(svgView);
 	};
 
-	this.addToken = function(tokenImg){
+	this.addToken = function(token){
 		if (this.grid.cellWidth<this.grid.cellHeight){
       		var tokensize = this.grid.cellWidth;
     	} else {
       		var tokensize = this.grid.cellHeight;
     	};
     	// Draw image on main SVG
-    	tokenSVGimg = this.svg.image(tokenImg.src); // draw image
+    	tokenSVGimg = this.svg.image(token.img.src); // draw image
     	tokenSVGimg.size(tokensize, tokensize).move(0, 0); //set image size and set image to 0,0
     	tokenSVGimg.draggable();
 
-    	this.tokens.set(1,tokenSVGimg);
+    	this.tokens.set(token.name,tokenSVGimg);
     	console.log(this.tokens);
 	};
+};
+
+function token(tokenImg,tokenName){
+	this.img = tokenImg;
+	this.name = tokenName;
 };
