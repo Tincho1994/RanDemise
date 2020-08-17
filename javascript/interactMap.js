@@ -29,11 +29,11 @@ function interactMap(svgObj, svgContainer){
 		this.grid.drawGridSVG(svgView);
 	};
 
-	this.addToken = function(token){
+	this.addToken = function(token,size){
 		if (this.grid.cellWidth<this.grid.cellHeight){
-      		var tokensize = this.grid.cellWidth;
+      		var tokensize = this.grid.cellWidth*size;
     	} else {
-      		var tokensize = this.grid.cellHeight;
+      		var tokensize = this.grid.cellHeight*size;
     	};
     	// Draw image on main SVG
     	tokenSVGimg = this.svg.image(token.img.src); // draw image
@@ -67,13 +67,14 @@ function interactPreview(svgObj, svgContainer){
 	};
 
 	this.updateBackground = function(viewX = null, viewY = null){
+		console.log(this.backgroundImg)
 		if(this.backgroundImg){
+			console.log("removing old image")
 			this.backgroundImg.remove();
 		};
 		this.backgroundImg = this.svg.image(this.backgroundImgSrc.src);
-		this.backgroundImg.size(this.backgroundImgSrc.naturalWidth, this.backgroundImgSrc.naturalHeight).move(0, 0);
+		this.backgroundImg.size(this.backgroundImgSrc.naturalWidth, this.backgroundImgSrc.naturalHeight).move(0, 0).back();
 		if (viewX & viewY){
-			console.log("custom");
 			this.svg.viewbox({ x: 0, y: 0, width: viewX, height: viewY });
 		}
 		else {

@@ -119,6 +119,16 @@
               </div>
             </div>
             <div class="modal-footer">
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <label class="input-group-text" for="size-select">Token Size</label>
+                </div>
+                <select class="custom-select" id="size-select1">
+                  <option value="1" selected>Medium 1x1</option>
+                  <option value="2">Large 2x2</option>
+                  <option value="3">Huge 3x3</option>
+                </select>
+              </div>
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
               <button type="button" id = "saveTokens" class="btn btn-primary" data-dismiss="modal">Save changes</button>
             </div>
@@ -155,8 +165,16 @@
 
 <script type="text/javascript">
   window.addEventListener('load', function() {
+
+    document.getElementById('inputGroupFile01').addEventListener('click', function() {
+      this.value = null;
+    });
+
+    document.getElementById('tokenUploader').addEventListener('click', function() {
+      this.value = null;
+    });
+
     document.getElementById('inputGroupFile01').addEventListener('change', function() {
-      // console.log(this.files && this.files[0]);
       if (this.files && this.files[0]) {
           // Update master image element 
 
@@ -195,17 +213,26 @@
 
     // Add global svg element for map tabletop
     svgView = SVG('#SVGmapCnvs'); //open SVg element as SVG.js object
-    svgView.panZoom();
+    svgView.panZoom({ zoomMin: 0.5, zoomMax: 10, zoomFactor: 0.2 });
     interactMapObj = new interactMap(svgView,'#SVGmapCnvs');
     svgView.viewbox({ x: 0, y: 0, width: 297, height: 210 }); //set viewbox intial dimensions
 
-
+    // Add global preview elements in hidden modal
+    svgPrevView = SVG('#imgPrevSVGCnvs'); //open SVg element as SVG.js object
+    svgPrevZoom = SVG('#imgPrevZoom'); //open SVg element as SVG.js object
+    tokenPrevView = SVG('#tokenPrevCnvs'); //open SVG element as SVG.js object
+    previewElem = document.getElementById('imgPrevContainer');
+    previewZoom = new interactPreview(svgPrevZoom, previewElem);
+    previewMap = new interactPreview(svgPrevView, 'imgPrevSVGCnvs');
+    previewToken = new interactPreview(tokenPrevView, 'tokenPreviewContainer');
   });
 
   // When modal window closes update the map grid
   $('#saveMap').click(function() {
     mapGrid = prevGrid;
     let img = document.getElementById("imgPreview");
+
+    crossLines.removeCrosses();
 
     // Draw image on main SVG
     // svgViewImage = svgView.image(img.src); // draw image
@@ -215,7 +242,15 @@
     interactMapObj.updateBackground();
     interactMapObj.assignGrid(mapGrid);
     interactMapObj.updateGrid();
-    
+
+
+    document.getElementById('imgPrevSVGCnvs').removeEventListener('click',clickMouse);
+    document.getElementById('imgPrevSVGCnvs').removeEventListener('mousemove', trackMouse);
+
+    delete(prevGrid);
+    delete(point1);
+    delete(point2);
+
     // elem = svgView.rect(100,100).fill('#f06');
     // elem.draggable();
 
@@ -225,7 +260,7 @@
   $('#saveTokens').click(function() {
     let img = document.getElementById("tokenPreview");
     let placeholderToken = new token(img, "uploadedToken");
-    interactMapObj.addToken(placeholderToken);
+    interactMapObj.addToken(placeholderToken, document.getElementById('size-select1').value);
     // if (mapGrid.cellWidth<mapGrid.cellHeight){
     //   tokensize = mapGrid.cellWidth;
     // } else {
@@ -243,12 +278,13 @@
     // Modal init
     $("#tokenModal").modal('show'); // show modal
     let previewElem = document.getElementById('tokenPreviewContainer');
+    previewToken.assignBackground(this);
+    previewToken.updateBackground();
     previewElem.width = this.width;
     previewElem.height = this.height;
 
-    tokenPrevView = SVG('#tokenPrevCnvs'); //open SVG element as SVG.js object
-    tokenPrevImage = tokenPrevView.image(this.src); // draw image
-    tokenPrevImage.size(200, 200).move(0, 0); //set image size and set image to 0,0
+    // tokenPrevImage = tokenPrevView.image(this.src); // draw image
+    // tokenPrevImage.size(200, 200).move(0, 0); //set image size and set image to 0,0
   }
 
   function imageIsLoaded() { 
@@ -276,18 +312,20 @@
     // ------------------------------------------------------------------------------
 
     // Draw image onto preview canvas
-    svgPrevView = SVG('#imgPrevSVGCnvs'); //open SVg element as SVG.js object
-    svgPrevZoom = SVG('#imgPrevZoom'); //open SVg element as SVG.js object
+    // svgPrevView = SVG('#imgPrevSVGCnvs'); //open SVg element as SVG.js object
+    // svgPrevZoom = SVG('#imgPrevZoom'); //open SVg element as SVG.js object
 
-    previewZoom = new interactPreview(svgPrevZoom, previewElem);
+    // previewZoom = new interactPreview(svgPrevZoom, previewElem);
     
-    svgPrevViewImage = svgPrevView.image(this.src); // draw image
+    // svgPrevViewImage = svgPrevView.image(this.src); // draw image
     // svgPrevZoomImage = svgPrevZoom.image(this.src); // draw image
+    previewMap.assignBackground(this);
+    previewMap.updateBackground();
     previewZoom.assignBackground(this);
     previewZoom.updateBackground(100,100);
-    svgPrevViewImage.size(this.width, this.height).move(0, 0); //set image size and set image to 0,0
+    // svgPrevViewImage.size(this.width, this.height).move(0, 0); //set image size and set image to 0,0
     // svgPrevZoomImage.size(this.width, this.height).move(0, 0); //set image size and set image to 0,0
-    svgPrevView.viewbox({ x: 0, y: 0, width: this.width, height: this.height }); //set SVG to image size
+    // svgPrevView.viewbox({ x: 0, y: 0, width: this.width, height: this.height }); //set SVG to image size
     // svgPrevZoom.viewbox({ x: 0, y: 0, width: 100, height: 100 }); //set SVG to image size
 
     prevGrid = new grid(1,1,1,1,[0,0]);
@@ -296,17 +334,23 @@
     crossLinesZoom = new cross();
 
     // On click get click position and save points to pt array and update grid
-    document.getElementById('imgPrevSVGCnvs').addEventListener('click', function(e) {
+    document.getElementById('imgPrevSVGCnvs').addEventListener('click',clickMouse);
+    document.getElementById('imgPrevSVGCnvs').addEventListener('mousemove', trackMouse);
+    //---------------------------------------------------
+
+    return;
+  };
+
+  function clickMouse(e){
       // Get canvas element and 2d context for drawing points as clicks occur and clearing canvas
       let previewElem = document.getElementById('imgPrevContainer');
       let previewSVG = document.getElementById('imgPrevSVGCnvs');
       let img = document.getElementById("imgPreview");
 
-      var rect = previewSVG.getBoundingClientRect(); // get rect of object for click offset
+      var rect = previewMap.getParentSVGContainer().getBoundingClientRect(); // get rect of object for click offset
 
       let x = (e.pageX -  rect.left)/rect.width * previewElem.width; //offset click and scale to canvas to set proper canvas coordinates
       let y = (e.pageY -  rect.top)/rect.height* previewElem.height; //offset click and scale to canvas to set proper canvas coordinates
-
 
       // Save click points and toggle state
       if (clickToggle) { // If 1st pt has been chosen
@@ -330,10 +374,11 @@
         prevGrid.drawGridSVG(svgPrevView); //draw preview grid
         
       };
+      
       clickToggle = ~clickToggle; //toggle pt chosen
-    });
+  };
 
-    document.getElementById('imgPrevSVGCnvs').addEventListener('mousemove', function(e) {
+  function trackMouse(e){
       let previewElem = document.getElementById('imgPrevContainer');
       let previewSVG = document.getElementById('imgPrevSVGCnvs');
 
@@ -350,11 +395,6 @@
 
       crossLinesZoom.removeCrosses();
       crossLinesZoom.drawCross(x,y,svgPrevZoom);
-
-    });
-    //---------------------------------------------------
-
-    return;
   };
 
   function cross(){
