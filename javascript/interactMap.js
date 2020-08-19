@@ -7,6 +7,10 @@ function interactMap(svgObj, svgContainer){
 		return document.getElementById(this.svgContainer);
 	};
 
+	this.getSVGobj = function(){
+		return this.svg;
+	};
+
 	this.assignGrid = function(grid){
 		this.grid = grid;
 	};
@@ -39,15 +43,43 @@ function interactMap(svgObj, svgContainer){
     	tokenSVGimg = this.svg.image(token.img.src); // draw image
     	tokenSVGimg.size(tokensize, tokensize).move(0, 0); //set image size and set image to 0,0
     	tokenSVGimg.draggable();
-
-    	this.tokens.set(token.name,tokenSVGimg);
+    	token.addSVG(tokenSVGimg);
+    	this.tokens.set(token.name,token);
     	console.log(this.tokens);
+	};
+
+	this.checkforTokens = function(){
+		for (let token of this.tokens.values()) {
+			console.log(token)
+  			if (token.selected){
+  				this.removeToken(token);
+  			};
+		}
+	};
+
+	this.removeToken = function(token){
+		token.svg.remove();
+		this.tokens.delete(token.name);
 	};
 };
 
-function token(tokenImg,tokenName){
+function token(tokenImg, mapObj, tokenName){
 	this.img = tokenImg;
 	this.name = tokenName;
+	this.selected = 0;
+	this.parentMapSVG = mapObj.getSVGobj();
+
+	this.addSVG = function(tokenSvgObj){
+		this.svg = tokenSvgObj;
+		let parent = this;
+		this.svg.on('click', function(e){
+			parent.selected = ~parent.selected;
+		});
+	};
+
+	this.removeFromSVG = function(){
+		this.svg.remove();
+	};
 };
 
 function interactPreview(svgObj, svgContainer){

@@ -124,7 +124,7 @@
                   <label class="input-group-text" for="size-select">Token Size</label>
                 </div>
                 <select class="custom-select" id="size-select1">
-                  <option value="1" selected>Medium 1x1</option>
+                  <option value="1" selected>Medium/ Small 1x1</option>
                   <option value="2">Large 2x2</option>
                   <option value="3">Huge 3x3</option>
                 </select>
@@ -259,7 +259,7 @@
   // When modal window closes update the tokens
   $('#saveTokens').click(function() {
     let img = document.getElementById("tokenPreview");
-    let placeholderToken = new token(img, "uploadedToken");
+    let placeholderToken = new token(img, interactMapObj, "uploadedToken");
     interactMapObj.addToken(placeholderToken, document.getElementById('size-select1').value);
     // if (mapGrid.cellWidth<mapGrid.cellHeight){
     //   tokensize = mapGrid.cellWidth;
@@ -273,6 +273,23 @@
 
     // svgViewImage.draggable();
   });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.keyCode == 8) {
+        console.log('BACKSPACE was pressed');
+        interactMapObj.checkforTokens();
+        // Call event.preventDefault() to stop the character before the cursor
+        // from being deleted. Remove this line if you don't want to do that.
+        event.preventDefault();
+    }
+    if (event.keyCode == 46) {
+        console.log('DELETE was pressed');
+        interactMapObj.checkforTokens();
+        // Call event.preventDefault() to stop the character after the cursor
+        // from being deleted. Remove this line if you don't want to do that.
+        event.preventDefault();
+    }
+});
 
   function tokenIsLoaded() { 
     // Modal init
