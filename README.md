@@ -11,9 +11,12 @@ TODO
 - [x] Token uploader and removal tool - Martin
     - [x] make elements draggable
     - [x] uploader for custom elements
-- [ ] Restructure the dangass map/ main svg to actually have an architecture and not just be a bunch of floating objects - Martin
+    - [x] removal of tokens
+- [ ] Token visuals - Martín
+    - [ ] Sub API for tokens - adding colored borders, grayscale ETC.
+    - [ ] Selection shadow/ border
+- [x] Restructure the dangass map/ main svg to actually have an architecture and not just be a bunch of floating objects - Martin
 - [ ] Unique instance on each load to allow for link sharing of sessions, like in improved intiative - Brendan
-- [ ] D3 integration to image frame to allow for interactable objects - TBD
 - [ ] Initiative tracking sidebar/ topbar -TBD
 
 Encounter Map Overlay
