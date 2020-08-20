@@ -139,6 +139,14 @@
     <!-- Main Viewer -->
     <div class="row">
       <div class="col-lg-12 text-center">
+        <div class="container" id="initContainer" style="margin-top: 25px; margin-bottom: 10px; padding: 0px">
+        <svg class = "border rounded" id="initCnvs" style= 'width:100%; height:100px; background-color: whitesmoke'>
+        </svg>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-12 text-center">
         <div class="container" id="mapContainer" style="margin-top: 25px; margin-bottom: 25px; padding: 0px">
         <svg class = "border rounded" id="SVGmapCnvs" style= 'width:100%; height:500px; background-color: whitesmoke'>
         </svg>
@@ -158,6 +166,7 @@
   <script src="javascript/node_modules/@svgdotjs/svg.draggable.js/dist/svg.draggable.js"></script>
   <!-- Panzoom JavaScript -->
   <script src="javascript/interactMap.js"></script>
+  <script src="javascript/interactInitiative.js"></script>
   
 </body>
 
@@ -217,6 +226,9 @@
     interactMapObj = new interactMap(svgView,'#SVGmapCnvs');
     svgView.viewbox({ x: 0, y: 0, width: 297, height: 210 }); //set viewbox intial dimensions
 
+    initSvgView = SVG('#initCnvs'); //open SVg element as SVG.js object
+    interactInitObj = new interactInitiative(initSvgView,'#initCnvs');
+
     // Add global preview elements in hidden modal
     svgPrevView = SVG('#imgPrevSVGCnvs'); //open SVg element as SVG.js object
     svgPrevZoom = SVG('#imgPrevZoom'); //open SVg element as SVG.js object
@@ -262,6 +274,7 @@
     let tokenName = Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
     let placeholderToken = new token(img, interactMapObj, tokenName);
     interactMapObj.addToken(placeholderToken, document.getElementById('size-select1').value);
+    interactInitObj.addToken(placeholderToken);
     // if (mapGrid.cellWidth<mapGrid.cellHeight){
     //   tokensize = mapGrid.cellWidth;
     // } else {
@@ -279,6 +292,7 @@
     if (event.keyCode == 8) {
         console.log('BACKSPACE was pressed');
         interactMapObj.checkforTokens();
+        interactInitObj.checkforTokens();
         // Call event.preventDefault() to stop the character before the cursor
         // from being deleted. Remove this line if you don't want to do that.
         event.preventDefault();
@@ -286,6 +300,7 @@
     if (event.keyCode == 46) {
         console.log('DELETE was pressed');
         interactMapObj.checkforTokens();
+        interactInitObj.checkforTokens();
         // Call event.preventDefault() to stop the character after the cursor
         // from being deleted. Remove this line if you don't want to do that.
         event.preventDefault();

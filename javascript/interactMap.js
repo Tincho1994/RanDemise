@@ -77,6 +77,10 @@ function token(tokenImg, mapObj, tokenName){
 		});
 	};
 
+	this.addInitSVG = function(tokenSvgObj){
+		this.initsvg = tokenSvgObj;
+	};
+
 	this.removeFromSVG = function(){
 		this.svg.remove();
 	};
