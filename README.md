@@ -6,6 +6,13 @@ Functionality:
 MVP: Improved intiative but with a map, token control, custom map upload and grid creation
 
 TODO
+- [ ] improved iniative tracker - Martín
+- [ ] backend json data storage for map/ tokens - Martín
+- [ ] saving and loading objects froma  database - Brendan
+- [ ] AWS hosting - Brendan
+- [ ] websockets revamp
+    - [ ] Serverside event handling
+    - [ ] Client side event handling
 - [x] map uploader w grid generation - Martin
     - [x] incorporate zoom on upload tool https://github.com/d3/d3-zoom - Martin
 - [x] Token uploader and removal tool - Martin
