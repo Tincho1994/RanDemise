@@ -259,7 +259,8 @@
   // When modal window closes update the tokens
   $('#saveTokens').click(function() {
     let img = document.getElementById("tokenPreview");
-    let placeholderToken = new token(img, interactMapObj, "uploadedToken");
+    let tokenName = Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    let placeholderToken = new token(img, interactMapObj, tokenName);
     interactMapObj.addToken(placeholderToken, document.getElementById('size-select1').value);
     // if (mapGrid.cellWidth<mapGrid.cellHeight){
     //   tokensize = mapGrid.cellWidth;
