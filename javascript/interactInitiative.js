@@ -21,8 +21,17 @@ function interactInitiative(svgObj, svgContainer){
 		}
 	};
 
-	this.removeToken = function(token){
-		token.initsvg.remove();
+	this.removeToken = function(tokenObj){
+		tokenFound = 0;
+		for (let tokenChecked of this.tokens.values()){
+			if (tokenObj.name == tokenChecked.name){
+				console.log("deleting "+ tokenChecked.name);
+				tokenFound = 1;
+			} else if (tokenFound){
+				tokenChecked.initsvg.move(tokenChecked.initsvg.x()-90,10);
+			};
+		};
+		tokenObj.initsvg.remove();
 		this.tokens.delete(token.name);
 	};
 
