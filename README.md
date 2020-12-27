@@ -7,6 +7,7 @@ MVP: Improved intiative but with a map, token control, custom map upload and gri
 
 TODO
 - [ ] improved iniative tracker - Martín
+- [ ] add sidebar for upload buttons - Martin https://bootstrapious.com/p/bootstrap-sidebar
 - [ ] backend json data storage for map/ tokens - Martín
 - [ ] saving and loading objects froma  database - Brendan
 - [ ] AWS hosting - Brendan
